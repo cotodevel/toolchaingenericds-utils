@@ -12,10 +12,12 @@
 #include "utilities.h"
 
 void showMenu(char * appName){
-	printf("Usage: \n");
+	printf("Usage: README.MD \n");
 	printf("%s [Command] arg0 arg1 arg2 arg3 ... argN \n", getFileName(string(appName), false).c_str());
 	printf("	Commands: \n");
-	printf("	bin2c Binfile.bin Binfile.c Binfile (optional)SectionName");
+	printf("	[bin2c] Binfile.bin Binfile.c Binfile (optional)SectionName\n");
+	printf("	[bin2lzss] command2 filename [filename [...]]\n");
+
 }
 
 int main( int argc, char *argv[] ){
@@ -25,6 +27,9 @@ int main( int argc, char *argv[] ){
 
 	if( (argv[1] != NULL) && (strncmp(argv[1], "bin2c", strlen("bin2c")) == 0)){
 		return convertbin2c(argc, argv);
+	}
+	else if( (argv[1] != NULL) && (strncmp(argv[1], "bin2lzss", strlen("bin2lzss")) == 0)){
+		return convertbin2lzss(argc, argv);
 	}
 
 	return 0;

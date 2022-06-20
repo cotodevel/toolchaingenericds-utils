@@ -25,6 +25,7 @@ void showMenu(char * appName){
 	printf("	Commands: \n");
 	printf("	[bin2c] Binfile.bin Binfile.c Binfile (optional)SectionName\n");
 	printf("	[bin2lzss] command2 filename [filename [...]]\n");
+	printf("	[mp4totvs] (put files in /tvsin folder)\n");
 
 }
 
@@ -39,7 +40,12 @@ int main( int argc, char *argv[] ){
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "bin2lzss", strlen("bin2lzss")) == 0)){
 		return convertbin2lzss(argc, argv);
 	}
-
+	else if( (argv[1] != NULL) && (strncmp(argv[1], "mp4totvs", strlen("mp4totvs")) == 0)){
+		return convertMP4toTVS(argc, argv);
+	}
+	else{
+		printf("Wrong Command: [%s]", argv[1]);
+	}
 	return 0;
 }
 

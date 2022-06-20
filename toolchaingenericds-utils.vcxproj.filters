@@ -30,6 +30,39 @@
     <ClInclude Include="winDir.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ToolchainGenericDSFS\fatfslayerTGDS.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ToolchainGenericDSFS\devoptab_devices.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ToolchainGenericDSFS\dldiWin32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ToolchainGenericDSFS\fatfs\source\ffconf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ToolchainGenericDSFS\fatfs\source\integer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ToolchainGenericDSFS\fatfs\source\diskio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ToolchainGenericDSFS\fatfs\source\ff.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TGDSVideoConverter\bmp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TGDSVideoConverter\lzss9.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TGDSVideoConverter\TGDSTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TGDSVideoConverter\TGDSVideo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -45,6 +78,36 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="bin2lzss.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolchainGenericDSFS\fatfslayerTGDS.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolchainGenericDSFS\devoptab_devices.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolchainGenericDSFS\dldiWin32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ffunicode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolchainGenericDSFS\fatfs\source\diskio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ff.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ffsystem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TGDSVideoConverter\TGDSVideo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TGDSVideoConverter\bmp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TGDSVideoConverter\lzss9.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

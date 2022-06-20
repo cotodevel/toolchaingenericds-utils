@@ -23,3 +23,41 @@ toolchaingenericds-utils [Command] arg0 arg1 arg2 argN
 			
 			multiple filenames and wildcards are permitted
 			the original file is overwritten with the new file
+			
+	
+	[mp4totvs] (put files in /tvsin folder)
+	
+Other tools:
+
+TGDS filesystem support into ToolchainGenericDS:
+	- FatFS FAT16/FAT32/exFAT disk library for the Nintendo DS
+	- Enables POSIX -> Newlib File IO Operations such as fopen/fread/fwrite/fclose/fseek/fgetc/etc
+	- FileClass layer Implementation: Simulates libfat in the high level layer (about 99%) so it aids in porting legacy NDS Homebrew.
+	- TGDS File / Directory Iterator Operator: Instances (Keeping memory footpring low) / Push-Pop operations, preventing to rewrite a lot of useless C code.
+	- Libfat-compatible API
+	
+	Folder structure:
+	misc/vs2012TGDS-FS
+		- 	Windows port (Visual Studio 2012) to run TGDS FS drivers natively (debugging purposes) + 32MB FAT Image for running a virtual DLDI layer. 
+			Implements TGDS FS (FAT/FAT32) file open/ read / writes from a FAT image which resembles a physical SD mapped to a DLDI driver.
+		-	Windows (Visual Studio 2012): TVS video exporter for TGDS-Videoplayer
+		
+	misc/build
+		- TGDS projects management (Makefile)
+		- TGDSPKGBuilderDefaultTemplateNDSHomebrew/ TGDS project template implementing a deployable package to be consumed by ToolchainGenericDS-OnlineApp (download and runs packages from the internet)
+		- dsarm/ misc tools to disassemble / assemble / debug ARM binaries from/to librarian formats (.a library of ARM ELF objects, Requires Newlib for NintendoDS before use. Follow: https://bitbucket.org/Coto88/newlib-nds/ steps to set up requires environment.)		
+		- resources/ specification of custom formats used by TGDS software
+	
+	misc/tgds-videoexporter
+		- TGDS-videoplayer converter. Reads any .mp4 (supported in ffmpeg) and converts it into a .TVS 
+			video stream to be played with TGDS-Videoplayer. Windows7+ only. Checkout misc/tgds-videoexporter/README.MD for details.
+	
+	misc/imaadpcm
+		- adpcm encoder / decoder
+	
+	misc/TGDSPKGBuilder
+		- TGDS package format, deployed through TGDS-onlineapp(https://bitbucket.org/Coto88/toolchaingenericds-onlineapp/src/master/)
+	
+	misc/tcp
+		- UDP TGDS Server Companion Program. Used for UDP NIFI (Internet) in TGDS projects
+

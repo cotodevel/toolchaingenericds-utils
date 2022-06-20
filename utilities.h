@@ -44,3 +44,5 @@ extern int convertbin2lzss(int argc, char **argv);
 	void  LZS_InitTree(void);
 	void  LZS_InsertNode(int r);
 	void  LZS_DeleteNode(int p);
+
+int convertMP4toTVS(int argc, char *argv[] );

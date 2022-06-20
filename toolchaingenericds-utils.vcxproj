@@ -69,6 +69,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <PrecompiledHeaderFile />
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -83,16 +84,37 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TGDSVideoConverter\bmp.h" />
+    <ClInclude Include="TGDSVideoConverter\lzss9.h" />
+    <ClInclude Include="TGDSVideoConverter\TGDSTypes.h" />
+    <ClInclude Include="TGDSVideoConverter\TGDSVideo.h" />
+    <ClInclude Include="ToolchainGenericDSFS\devoptab_devices.h" />
+    <ClInclude Include="ToolchainGenericDSFS\dldiWin32.h" />
+    <ClInclude Include="ToolchainGenericDSFS\fatfslayerTGDS.h" />
+    <ClInclude Include="ToolchainGenericDSFS\fatfs\source\diskio.h" />
+    <ClInclude Include="ToolchainGenericDSFS\fatfs\source\ff.h" />
+    <ClInclude Include="ToolchainGenericDSFS\fatfs\source\ffconf.h" />
+    <ClInclude Include="ToolchainGenericDSFS\fatfs\source\integer.h" />
     <ClInclude Include="utilities.h" />
     <ClInclude Include="winDir.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bin2lzss.cpp" />
+    <ClCompile Include="TGDSVideoConverter\bmp.cpp" />
+    <ClCompile Include="TGDSVideoConverter\lzss9.c" />
+    <ClCompile Include="TGDSVideoConverter\TGDSVideo.c" />
     <ClCompile Include="toolchaingenericds-utils.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ToolchainGenericDSFS\devoptab_devices.c" />
+    <ClCompile Include="ToolchainGenericDSFS\dldiWin32.cpp" />
+    <ClCompile Include="ToolchainGenericDSFS\fatfslayerTGDS.cpp" />
+    <ClCompile Include="ToolchainGenericDSFS\fatfs\source\diskio.c" />
+    <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ff.c" />
+    <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ffsystem.c" />
+    <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ffunicode.c" />
     <ClCompile Include="utilities.cpp" />
     <ClCompile Include="winDir.cpp" />
   </ItemGroup>

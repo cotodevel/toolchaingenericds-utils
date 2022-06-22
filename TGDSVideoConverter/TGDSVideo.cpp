@@ -1,3 +1,4 @@
+#if defined(WIN32) || defined(ARM9)
 /*
 
 			Copyright (C) 2017  Coto
@@ -27,8 +28,6 @@ USA
 #include <stdint.h>
 #include "TGDSVideo.h"
 #ifdef ARM9
-#include "fatfslayerTGDS.h"
-#include "posixHandleTGDS.h"
 #include "biosTGDS.h"
 #include "nds_cp15_misc.h"
 #include "dmaTGDS.h"
@@ -37,7 +36,10 @@ USA
 #include "ima_adpcm.h"
 #include "main.h"
 #include "lz77.h"
+#include "posixHandleTGDS.h"
 #endif
+#include "../ToolchainGenericDSFS/fatfslayerTGDS.h"
+#include "../utilities.h"
 #include "lzss9.h"
 #if defined (MSDOS) || defined(WIN32)
 #include "..\ToolchainGenericDSFS\fatfslayerTGDS.h"
@@ -104,9 +106,6 @@ __attribute__((section(".dtcm")))
 #endif
 static struct videoFrame videoFrameDef;
 
-int nextVideoFrameOffset;
-int nextVideoFrameFileSize;
-
 //Returns: Total videoFrames found in File handle
 
 #if (defined(__GNUC__) && !defined(__clang__))
@@ -167,7 +166,6 @@ int parseTGDSVideoFile(struct fd * _VideoDecoderFileHandleFD, char * audioFname)
 //returns: physical struct videoFrame * offset from source FILE handle
 #ifdef ARM9
 __attribute__((section(".itcm")))
-#endif
 u32 getVideoFrameOffsetFromIndexInFileHandle(int videoFrameIndexFromFileHandle){
 	//TGDSVideo methods uses same format for ARM9 and WIN32
 	u32 frameOffsetCollectionInFileHandle = ((int)(sizeof(struct TGDSVideoFrameContext) - 4) + (videoFrameIndexFromFileHandle*4));
@@ -178,6 +176,7 @@ u32 getVideoFrameOffsetFromIndexInFileHandle(int videoFrameIndexFromFileHandle){
 	}
 	return -1;
 }
+#endif
 
 #ifdef ARM9
 __attribute__((section(".dtcm")))
@@ -228,3 +227,4 @@ int TGDSVideoRender(){
 }
 
 //NDS Client implementation End
+#endif

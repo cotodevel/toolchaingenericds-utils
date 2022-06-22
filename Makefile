@@ -5,23 +5,38 @@ CFLAGS = -g -Wall
 
 .PHONY: default all clean
 
-default: $(TARGET)
+default: installzlib	$(TARGET)
 all: default
 
-OBJECTS = $(patsubst %.c, %.o, $(wildcard *.c))	$(patsubst %.cpp, %.o, $(wildcard *.cpp))
-HEADERS = $(wildcard *.h)
+SRCS =  ./	ToolchainGenericDSFS/ TGDSVideoConverter/
+OBJECTS = $(foreach dir,$(SRCS), $(patsubst %.c, %.o, $(wildcard $(dir)*.c)  ) )	$(foreach dir,$(SRCS), $(patsubst %.cpp, %.o, $(wildcard $(dir)*.cpp)  ) )
 
-%.o: %.cpp $(HEADERS)
-	 g++  $(CPPFLAGS) -c $< -o $@	-static -static-libstdc++
+HDRS = ./	/ToolchainGenericDSFS /TGDSVideoConverter
+HEADERS = $(foreach dirres,$(HDRS),-I "$(dirres)" )
 
-%.o: %.c $(HEADERS)
-	$(CC) $(CFLAGS) -c $< -o $@	-static -static-libgcc
+installzlib:
+	-@echo 'setup zlib'
+	-@cd	$(CURDIR)/zlib-1.2.11 &&	./configure --prefix=/usr/local/zlib
+	-@sudo $(MAKE)	-C	$(CURDIR)/zlib-1.2.11
+	-@sudo mv	$(CURDIR)/zlib-1.2.11/libz.a	$(CURDIR)
+	
+
+%.o: %.cpp 
+	 g++  $(CPPFLAGS) $(HEADERS) -c $< -o $@	-static -static-libstdc++
+
+%.o: %.c 
+	$(CC) $(CFLAGS) $(HEADERS) -c $< -o $@	-static -static-libgcc
 
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
 	-@g++	$(OBJECTS)	-Wall	$(LIBS)	-o	$@
+	-@sudo mv	$(CURDIR)/$(TARGET)	$(GCC_BUILD_ENV)$(GCC_BIN_PATH)$(TARGET)
 	-@echo '$(TARGET) build OK';
 
 clean:
-	-rm -f *.o $(TARGET)
+	-rm -f *.o $(OBJECTS) $(TARGET) libz.a
+	-$(MAKE)	clean	-C	zlib-1.2.11/
+		
+debug:
+	-@echo '$(HEADERS) ';

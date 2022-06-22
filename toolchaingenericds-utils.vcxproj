@@ -82,7 +82,9 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="crc32Tool.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="tarball.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="TGDSVideoConverter\bmp.h" />
     <ClInclude Include="TGDSVideoConverter\lzss9.h" />
@@ -97,12 +99,27 @@
     <ClInclude Include="ToolchainGenericDSFS\fatfs\source\integer.h" />
     <ClInclude Include="utilities.h" />
     <ClInclude Include="winDir.h" />
+    <ClInclude Include="zlib-1.2.11\crc32.h" />
+    <ClInclude Include="zlib-1.2.11\deflate.h" />
+    <ClInclude Include="zlib-1.2.11\inffast.h" />
+    <ClInclude Include="zlib-1.2.11\inffixed.h" />
+    <ClInclude Include="zlib-1.2.11\inflate.h" />
+    <ClInclude Include="zlib-1.2.11\inftrees.h" />
+    <ClInclude Include="zlib-1.2.11\stdafx.h" />
+    <ClInclude Include="zlib-1.2.11\targetver.h" />
+    <ClInclude Include="zlib-1.2.11\throw.h" />
+    <ClInclude Include="zlib-1.2.11\trees.h" />
+    <ClInclude Include="zlib-1.2.11\zconf.h" />
+    <ClInclude Include="zlib-1.2.11\zconf.in.h" />
+    <ClInclude Include="zlib-1.2.11\zlib.h" />
+    <ClInclude Include="zlib-1.2.11\zutil.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="bin2lzss.cpp" />
+    <ClCompile Include="crc32Tool.c" />
+    <ClCompile Include="tarball.cpp" />
     <ClCompile Include="TGDSVideoConverter\bmp.cpp" />
     <ClCompile Include="TGDSVideoConverter\lzss9.c" />
-    <ClCompile Include="TGDSVideoConverter\TGDSVideo.c" />
+    <ClCompile Include="TGDSVideoConverter\TGDSVideo.cpp" />
     <ClCompile Include="toolchaingenericds-utils.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -117,6 +134,24 @@
     <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ffunicode.c" />
     <ClCompile Include="utilities.cpp" />
     <ClCompile Include="winDir.cpp" />
+    <ClCompile Include="zlib-1.2.11\adler32.c" />
+    <ClCompile Include="zlib-1.2.11\compress.c" />
+    <ClCompile Include="zlib-1.2.11\crc32.c" />
+    <ClCompile Include="zlib-1.2.11\deflate.c" />
+    <ClCompile Include="zlib-1.2.11\example.c" />
+    <ClCompile Include="zlib-1.2.11\gzio.c" />
+    <ClCompile Include="zlib-1.2.11\infback.c" />
+    <ClCompile Include="zlib-1.2.11\inffast.c" />
+    <ClCompile Include="zlib-1.2.11\inflate.c" />
+    <ClCompile Include="zlib-1.2.11\inftrees.c" />
+    <ClCompile Include="zlib-1.2.11\minigzip.c" />
+    <ClCompile Include="zlib-1.2.11\stdafx.cpp" />
+    <ClCompile Include="zlib-1.2.11\trees.c" />
+    <ClCompile Include="zlib-1.2.11\uncompr.c" />
+    <ClCompile Include="zlib-1.2.11\zutil.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="zlib-1.2.11\make_vms.com" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

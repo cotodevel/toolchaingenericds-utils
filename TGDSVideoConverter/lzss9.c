@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "../utilities.h"
 /*----------------------------------------------------------------------------*/
 #define CMD_DECODE    0x00       // decode
 #define CMD_CODE_10   0x10       // LZSS magic number
@@ -82,41 +82,6 @@ void  LZS_InitTree(void);
 void  LZS_InsertNode(int r);
 void  LZS_DeleteNode(int p);
 
-/*
-int main(int argc, char **argv) {
-  int cmd, mode;
-  int arg;
-
-  Title();
-
-  if (argc < 2) Usage();
-  if      (!_strcmpi(argv[1], "-d"))   { cmd = CMD_DECODE; }
-  else if (!_strcmpi(argv[1], "-evn")) { cmd = CMD_CODE_10; mode = LZS_VRAM; }
-  else if (!_strcmpi(argv[1], "-ewn")) { cmd = CMD_CODE_10; mode = LZS_WRAM; }
-  else if (!_strcmpi(argv[1], "-evf")) { cmd = CMD_CODE_10; mode = LZS_VFAST; }
-  else if (!_strcmpi(argv[1], "-ewf")) { cmd = CMD_CODE_10; mode = LZS_WFAST; }
-  else if (!_strcmpi(argv[1], "-evo")) { cmd = CMD_CODE_10; mode = LZS_VBEST; }
-  else if (!_strcmpi(argv[1], "-ewo")) { cmd = CMD_CODE_10; mode = LZS_WBEST; }
-  else                                  EXIT("Command not supported\n");
-  if (argc < 3) EXIT("Filename not specified\n");
-
-  switch (cmd) {
-    case CMD_DECODE:
-      for (arg = 2; arg < argc; arg++) LZS_Decode(argv[arg]);
-      break;
-    case CMD_CODE_10:
-      for (arg = 2; arg < argc; arg++) LZS_Encode(argv[arg], mode); //LZS_Encode(argv[arg], LZS_WBEST);
-      break;
-    default:
-      break;
-  }
-
-  printf("\nDone\n");
-
-  return(0);
-}
-*/
-
 /*----------------------------------------------------------------------------*/
 void Title(void) {
   printf(
@@ -130,9 +95,9 @@ void Title(void) {
 /*----------------------------------------------------------------------------*/
 void Usage(void) {
   EXIT(
-    "Usage: LZSS command filename [filename [...]]\n"
+    "Wrong parameters. Usage: [BIN2LZSS] command2 filename [filename [...]]\n"
     "\n"
-    "command:\n"
+    "command2:\n"
     "  -d ..... decode 'filename'\n"
     "  -evn ... encode 'filename', VRAM compatible, normal mode (LZ10)\n"
     "  -ewn ... encode 'filename', WRAM compatible, normal mode\n"
@@ -596,4 +561,37 @@ void LZS_DecodeFromBuffer(unsigned char *pak_buffer, unsigned int pak_len, unsig
   if (raw != raw_end) printf(", WARNING: unexpected end of encoded file!");
 
   printf("\n");
+}
+
+int convertbin2lzss(int argc, char **argv){
+ int cmd, mode;
+  int arg;
+
+  Title();
+
+  if (argc < 2) Usage();
+  if      (!strcmpi(argv[1], "-d"))   { cmd = CMD_DECODE; }
+  else if (!strcmpi(argv[1], "-evn")) { cmd = CMD_CODE_10; mode = LZS_VRAM; }
+  else if (!strcmpi(argv[1], "-ewn")) { cmd = CMD_CODE_10; mode = LZS_WRAM; }
+  else if (!strcmpi(argv[1], "-evf")) { cmd = CMD_CODE_10; mode = LZS_VFAST; }
+  else if (!strcmpi(argv[1], "-ewf")) { cmd = CMD_CODE_10; mode = LZS_WFAST; }
+  else if (!strcmpi(argv[1], "-evo")) { cmd = CMD_CODE_10; mode = LZS_VBEST; }
+  else if (!strcmpi(argv[1], "-ewo")) { cmd = CMD_CODE_10; mode = LZS_WBEST; }
+  else                                  EXIT("Command not supported\n");
+  if (argc < 3) EXIT("Filename not specified\n");
+
+  switch (cmd) {
+    case CMD_DECODE:
+      for (arg = 2; arg < argc; arg++) LZS_Decode(argv[arg]);
+      break;
+    case CMD_CODE_10:
+      for (arg = 2; arg < argc; arg++) LZS_Encode(argv[arg], mode); //LZS_Encode(argv[arg], LZS_WBEST);
+      break;
+    default:
+      break;
+  }
+
+  printf("\nDone\n");
+
+  return(0);
 }

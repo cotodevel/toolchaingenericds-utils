@@ -96,6 +96,10 @@ extern int           dad[LZS_N + 1], lson[LZS_N + 1], rson[LZS_N + 1 + 256];
 extern int           pos_ring, len_ring, lzs_vram;
 extern void LZS_EncodeFromBuffer(unsigned char *raw_buffer, unsigned int raw_len, unsigned char *pak_buffer, unsigned int *pak_len);
 extern void LZS_DecodeFromBuffer(unsigned char *pak_buffer, unsigned int pak_len, unsigned char * raw_buffer, unsigned int * raw_len);
+extern int convertbin2lzss(int argc, char **argv);
+
 #ifdef __cplusplus
 }
 #endif
+
+

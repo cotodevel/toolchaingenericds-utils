@@ -28,11 +28,19 @@ USA
 #define TGDSARM9Calloc calloc
 #define TGDSARM9Realloc realloc
 #define TGDSARM9Free free
+#endif
+
+//enable GCC Linux and WIN32 only
+#if !defined(ARM9)
 #include "TGDSTypes.h"
 #endif
 
 #include <stdio.h>
 #include <stdint.h>
+
+#if !defined(ARM9) && !defined(WIN32)
+#include <stdbool.h>
+#endif
 
 #ifdef ARM9
 #include "typedefsTGDS.h"

@@ -17,10 +17,15 @@
 #define SET_BINARY_MODE(file)
 #endif
 
+
+#if defined(WIN32)
+#include <windows.h> // WinApi header
+#include "shlwapi.h"
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
-#include <windows.h> // WinApi header
 using namespace std; // std::cout, std::cin
 #include <vector>
 #include <string>
@@ -29,11 +34,11 @@ using namespace std; // std::cout, std::cin
 #include <string.h>
 #include <stdint.h>
 #include "bmp.h"
-#include "..\winDir.h"
-#include "shlwapi.h"
+#include "../winDir.h"
 #include "TGDSVideo.h"
 #include "lzss9.h"
 #include <iostream>
+#include <cmath>
 
 uint8_t bmpBuffer[MAX_BMP_FILESIZE];
 
@@ -75,7 +80,7 @@ unsigned char *LoadBitmapFile(char *filename, struct BMPBITMAPINFOHEADER *bitmap
     }
 
     //read the bitmap info header
-    fread(bitmapInfoHeader, sizeof(tagBITMAPINFOHEADER),1,filePtr); // small edit. forgot to add the closing bracket at sizeof
+    fread(bitmapInfoHeader, sizeof(tagBMPBITMAPINFOHEADER),1,filePtr); // small edit. forgot to add the closing bracket at sizeof
 
     //move file point to the begging of bitmap data
     fseek(filePtr, bitmapFileHeader.bfOffBits, SEEK_SET);

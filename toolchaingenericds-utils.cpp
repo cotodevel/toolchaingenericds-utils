@@ -13,6 +13,7 @@
 #include <stdarg.h>
 #include "utilities.h"
 #include "winDir.h"
+#include "TGDSVideoConverter/lzss9.h"
 
 #include <string>
 #include <vector>
@@ -26,7 +27,7 @@ void showMenu(char * appName){
 	printf("	[bin2c] Binfile.bin Binfile.c Binfile (optional)SectionName\n");
 	printf("	[bin2lzss] command2 filename [filename [...]]\n");
 	printf("	[mp4totvs] (put files in /tvsin folder)\n");
-
+	printf("	[pkgbuilder]  TGDSProjectName [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSPKGOutDirectory] [/TGDSProjectSourceFolder] \n");
 }
 
 int main( int argc, char *argv[] ){
@@ -43,8 +44,11 @@ int main( int argc, char *argv[] ){
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "mp4totvs", strlen("mp4totvs")) == 0)){
 		return convertMP4toTVS(argc, argv);
 	}
+	else if( (argv[1] != NULL) && (strncmp(argv[1], "pkgbuilder", strlen("pkgbuilder")) == 0)){
+		return TGDSPKGBuilder(argc, argv);
+	}
 	else{
-		printf("Wrong Command: [%s]", argv[1]);
+		printf("\nMissing or Wrong Command\n");
 	}
 	return 0;
 }

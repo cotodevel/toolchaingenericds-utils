@@ -4,7 +4,6 @@
 //disable _CRT_SECURE_NO_WARNINGS message to build this in VC++
 #pragma warning(disable:4996)
 #endif
-
 /*
 			Copyright (C) 2017  Coto
 This program is free software; you can redistribute it and/or modify
@@ -35,11 +34,12 @@ USA
 #include "typedefsTGDS.h"
 #endif
 
+#if defined(WIN32)
 #include "../TGDSVideoConverter/TGDSTypes.h"
+#endif
 #include "dldiWin32.h"
 #include "fatfs/source/ff.h"
 #include "devoptab_devices.h"
-#include "dldiWin32.h"
 
 //fatfs
 FATFS dldiFs;
@@ -172,8 +172,7 @@ int fsync(int structFDIndex){	//(FileDescriptor :struct fd index)
     return fatfs_fsync(structFDIndex);
 }
 
-#ifdef WIN32
-
+#if defined(WIN32) || defined(ARM9)
 int mkdir(const sint8 *path, mode_t mode){
     return fatfs_mkdir(path, mode);
 }
@@ -185,6 +184,7 @@ int rmdir(const sint8 *path){
 int chdir(const sint8 *path){
     return fatfs_chdir(path);
 }
+
 sint8 *getcwd(sint8 *buf, size_t size){
     return fatfs_getcwd(buf, size);
 }
@@ -202,11 +202,6 @@ struct dirent *readdir(DIR *dirp){
 }
 
 #endif
-	
-
-
-
-
 void rewinddir(DIR *dirp){
     fatfs_rewinddir(dirp);
 }
@@ -2882,9 +2877,7 @@ int str_split(char * stream, char * haystack, char * outBuf, int itemSize, int b
 }
 #endif
 
-
 struct FileClassList * initFileList(){
 	return (struct FileClassList *)TGDSARM9Malloc(sizeof(struct FileClassList));
 }
 #endif
-

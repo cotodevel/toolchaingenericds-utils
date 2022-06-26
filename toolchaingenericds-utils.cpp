@@ -26,7 +26,7 @@ void showMenu(char * appName){
 	printf("	Commands: \n");
 	printf("	[bin2c] Binfile.bin Binfile.c Binfile (optional)SectionName\n");
 	printf("	[bin2lzss] command2 filename [filename [...]]\n");
-	printf("	[mp4totvs] (put files in /tvsin folder)\n");
+	printf("	[mp4totvs] TGDS-Videoconverter, emits *.TVS video+audio streams playable in ToolchainGenericDS-multimediaplayer (cmd only) \n");
 	printf("	[pkgbuilder]  TGDSProjectName [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSPKGOutDirectory] [/TGDSProjectSourceFolder] \n");
 }
 

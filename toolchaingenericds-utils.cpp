@@ -30,21 +30,40 @@ void showMenu(char * appName){
 	printf("	[pkgbuilder]  TGDSProjectName [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSPKGOutDirectory] [/TGDSProjectSourceFolder] \n");
 }
 
+//All args starting from 1 are arranged to start from 0
+void orderArgs(int argc, char *argv[]){
+	vector<char *> vect;
+	int i = 1;
+	for(i = 1; i < argc; i++){
+		vect.push_back(argv[i]);
+	}
+	i = 0;
+	for (char*& arr : vect) {
+		argv[i] = arr; //printf("new arg:%d %s\n", i, arr);//current arg char* buffer (string value)
+		i++;
+	}
+	vect.empty();
+}
+
 int main( int argc, char *argv[] ){
 	if(argc < 2){
 		showMenu(argv[0]);
 	}
 
 	if( (argv[1] != NULL) && (strncmp(argv[1], "bin2c", strlen("bin2c")) == 0)){
+		orderArgs(argc, argv);
 		return convertbin2c(argc, argv);
 	}
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "bin2lzss", strlen("bin2lzss")) == 0)){
+		orderArgs(argc, argv);
 		return convertbin2lzss(argc, argv);
 	}
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "mp4totvs", strlen("mp4totvs")) == 0)){
+		orderArgs(argc, argv);
 		return convertMP4toTVS(argc, argv);
 	}
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "pkgbuilder", strlen("pkgbuilder")) == 0)){
+		orderArgs(argc, argv);
 		return TGDSPKGBuilder(argc, argv);
 	}
 	else{

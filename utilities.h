@@ -34,3 +34,4 @@ extern void showMenu(char * appName);
 extern int convertbin2c(int argc, char *argv[]);
 extern int convertMP4toTVS(int argc, char *argv[] );
 extern int TGDSPKGBuilder(int argc, char *argv[] );
+extern void orderArgs(int argc, char *argv[]);

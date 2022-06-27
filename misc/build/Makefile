@@ -19,7 +19,7 @@
 
 NEWLIB2_NTR 	=	$(CURDIR)/newlib-nds/newlib-nds
 TOOLCHAIN_DIR 	= $(CURDIR)/ToolchainGenericDS
-PROY_DIR		= $(CURDIR)/ToolchainGenericDS-unittest
+PROY_DIR		= $(CURDIR)/toolchaingenericds-multiboot
 PROY_DIR2		= $(CURDIR)/toolchaingenericds-ftpserver
 
 #Automated Commit message
@@ -91,7 +91,7 @@ cleanall:
 	
 checkoutall:
 	git clone https://Coto88@bitbucket.org/Coto88/coto88.bitbucket.org.git $(CURDIR)/coto88.bitbucket.org
-	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-helper.git $(CURDIR)/ToolchainGenericDS-Helper
+	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-utils.git $(CURDIR)/ToolchainGenericDS-utils
 	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-filedownload.git $(CURDIR)/ToolchainGenericDS-filedownload
 	git clone https://Coto88@bitbucket.org/Coto88/armv4core.git $(CURDIR)/armv4core
 	git clone https://Coto88@bitbucket.org/Coto88/gbaarmhook.git $(CURDIR)/gbaARMHook

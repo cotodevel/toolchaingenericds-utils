@@ -27,22 +27,8 @@ void showMenu(char * appName){
 	printf("	[bin2c] Binfile.bin Binfile.c Binfile (optional)SectionName\n");
 	printf("	[bin2lzss] command2 filename [filename [...]]\n");
 	printf("	[mp4totvs] TGDS-Videoconverter, emits *.TVS video+audio streams playable in ToolchainGenericDS-multimediaplayer (cmd only) \n");
-	printf("	[pkgbuilder]  TGDSProjectName [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSPKGOutDirectory] [/TGDSProjectSourceFolder] \n");
-}
-
-//All args starting from 1 are arranged to start from 0
-void orderArgs(int argc, char *argv[]){
-	vector<char *> vect;
-	int i = 1;
-	for(i = 1; i < argc; i++){
-		vect.push_back(argv[i]);
-	}
-	i = 0;
-	for (char*& arr : vect) {
-		argv[i] = arr; //printf("new arg:%d %s\n", i, arr);//current arg char* buffer (string value)
-		i++;
-	}
-	vect.empty();
+	printf("	[pkgbuilder]  TGDSProjectName [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSProjectSourceDirectory] [ntr_mode/twl_mode] \n");
+	printf("	[remotebooter]  [/TGDSProjectSourceDirectory] [NintendoDS IP:xxx.xxx.xxx.xxx format] [ntr_mode/twl_mode] [TGDSProjectName] [baseTargetDecompressorDirectory] [TGDSLibrarySourceDirectory] \n");
 }
 
 int main( int argc, char *argv[] ){
@@ -65,6 +51,10 @@ int main( int argc, char *argv[] ){
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "pkgbuilder", strlen("pkgbuilder")) == 0)){
 		orderArgs(argc, argv);
 		return TGDSPKGBuilder(argc, argv);
+	}
+	else if( (argv[1] != NULL) && (strncmp(argv[1], "remotebooter", strlen("remotebooter")) == 0)){
+		orderArgs(argc, argv);
+		return TGDSRemoteBooter(argc, argv);
 	}
 	else{
 		printf("\nMissing or Wrong Command\n");

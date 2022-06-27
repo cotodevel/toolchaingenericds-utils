@@ -32,8 +32,20 @@ toolchaingenericds-utils [Command] arg0 arg1 arg2 argN
 			located at C:\bitbucket_clone\newlib-nds\installer\shared\6.2_2016q4\bin if you install newlib-nds (https://bitbucket.org/Coto88/newlib-nds/src)
 		
 		
-	[pkgbuilder]  TGDSProjectName [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSPKGOutDirectory] [/TGDSProjectSourceFolder] 
+	[pkgbuilder] [TGDSProjectName] [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSProjectSourceDirectory]
+		__Description__
+		ToolchainGenericDS Packager. 
+		Note: TGDSProjectName refers to the TGDS Project's main NTR/TWL binary name.
 	
+	
+	[remotebooter]  [/TGDSProjectSourceDirectory] [NintendoDS IP:xxx.xxx.xxx.xxx format] [ntr_mode/twl_mode] [TGDSProjectName] [baseTargetDecompressorDirectory] [TGDSLibrarySourceDirectory]
+		__Description__
+		Packages a destination directory and sends it to ToolchainGenericDS-multiboot remoteboot command
+		Note: TGDSProjectName refers to the TGDS Project's main NTR/TWL binary name.
+
+
+
+
 Other tools:
 
 TGDS filesystem support into ToolchainGenericDS:

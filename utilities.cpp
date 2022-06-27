@@ -61,6 +61,21 @@ bool cv_snprintf(char* buf, int len, const char* fmt, ...){
 }
 #endif
 
+//All args starting from 1 are arranged to start from 0
+void orderArgs(int argc, char *argv[]){
+	vector<char *> vect;
+	int i = 1;
+	for(i = 1; i < argc; i++){
+		vect.push_back(argv[i]);
+	}
+	i = 0;
+	for (char*& arr : vect) {
+		argv[i] = arr; //printf("new arg:%d %s\n", i, arr);//current arg char* buffer (string value)
+		i++;
+	}
+	vect.empty();
+}
+
 int convertbin2c(int argc, char *argv[] ){
 	char *buf;
     char* ident;
@@ -370,15 +385,16 @@ extern int file_compress(char  *file, char  *mode);
 int TGDSPKGBuilder(int argc, char *argv[] ){
 	int k;
 	
-	//printf("DEBUGGER: argv 0: %s\n", argv[0]);	// C:\toolchain_generic\6.2_2016q4\bin\TGDSPKGBuilder.exe
+	//printf("DEBUGGER: argv 0: %s\n", argv[0]);	// TGDSPKGBuilder.exe
 	//printf("DEBUGGER: argv 1: %s\n", argv[1]);	// ToolchainGenericDS-template
-	//printf("DEBUGGER: argv 2: %s\n", argv[2]);	// TGDSPKG_template
+	//printf("DEBUGGER: argv 2: %s\n", argv[2]);	// /
 	//printf("DEBUGGER: argv 3: %s\n", argv[3]);	// c:/toolchain_generic/6.2_2016q4/arm-eabi/lib/
 	//printf("DEBUGGER: argv 5: %s\n", argv[4]);	// /release/arm7dldi-ntr
+	//printf("DEBUGGER: argv 6: %s\n", argv[5]);	// NTR / TWL Mode
 	
 	/* avoid end-of-line conversions */
-    	SET_BINARY_MODE(stdin);
-    	SET_BINARY_MODE(stdout);
+    SET_BINARY_MODE(stdin);
+    SET_BINARY_MODE(stdout);
 
 	if (argc < 3){
 		TGDSPackageBuilderHelp();
@@ -403,46 +419,40 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	strcpy(TGDSProjectName, argv[1]); //strcpy(TGDSProjectName, "ToolchainGenericDS-template");
 	char TGDSMainApp[256+1];
 	strcpy(TGDSMainApp, TGDSProjectName);
-	strcat(TGDSMainApp, ".nds");
-	
-	//ok
 
+	if( (argv[5] != NULL) && (strncmp(argv[5], "twl_mode", strlen("twl_mode")) == 0)){
+		strcat(TGDSMainApp, ".srl");
+	}
+	else if( (argv[5] != NULL) && (strncmp(argv[5], "ntr_mode", strlen("ntr_mode")) == 0)){
+		strcat(TGDSMainApp, ".nds");
+	}
+	
 	//Output Directory
 	char converted[256];	
 	char outputPKGPath[256];
-	getcwd(converted, sizeof(converted));
-	strcpy(outputPKGPath, (string(converted) + string("\\")).c_str() ); //strcpy(outputPKGPath, (string(converted) + string("\\..\\Debug")).c_str() );
+	strcpy(outputPKGPath, (string(argv[4]) + string("\\")).c_str() ); //strcpy(outputPKGPath, (string(converted) + string("\\..\\Debug")).c_str() );
 	
-	//ok
-
-	printf("Source files Directory: %s\n", argv[4]);
-	std::vector<std::string> vec = list_directory(string(converted) + string(argv[4]));	
-	printf("Source files Count: %d\n", vec.size());
+	printf("\nSource files Directory: %s\n", argv[4]);
+	std::vector<std::string> vec = list_directory(string(argv[4]));	
+	printf("\nSource files Count: %d\n", vec.size());
 	
 	int crc32mainApp =-1;
 	int crc32TGDSSDK =-1;
 
 	/* open file for writing */
 	char fullPathOuttar[256+1];
-		//strcpy(fullPathOuttar, "..\\Debug\\");
-		//strcat(fullPathOuttar, (string(TGDSProjectName) + string(".tar")).c_str());
-		
-		memset(fullPathOuttar, 0, sizeof(fullPathOuttar));
-		strcpy(fullPathOuttar, outputPKGPath);
-		strcat(fullPathOuttar, (string(argv[1]) + string(".tar")).c_str());
+	memset(fullPathOuttar, 0, sizeof(fullPathOuttar));
+	strcpy(fullPathOuttar, outputPKGPath);
+	strcat(fullPathOuttar, (string(argv[1]) + string(".tar")).c_str());
 
-	
 	/* open file for writing */
 	std::fstream out(fullPathOuttar,std::ios::out | std::ios::binary);
 	printf("Tar Out: %s\n", fullPathOuttar);
 	
-	//ok
-
-	if(!out.is_open())
-		{
+	if(!out.is_open()){
 		std::cerr << "Cannot open out: " << string(fullPathOuttar) << std::endl;
 		return EXIT_FAILURE;
-		}
+	}
 	/* create the tar file */
 	lindenb::io::Tar tarball(out);
 	
@@ -452,16 +462,10 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 			
 			/* add a file */
 			char fullPathIn[256+1];
-			//strcpy(fullPathIn, "..\\Debug\\");
-			//strcat(fullPathIn, filename);
-
-			strcpy(fullPathIn, outputPKGPath);
-			strcat(fullPathIn, (argv[4] + 1));
+			strcpy(fullPathIn, (argv[4]));
 			strcat(fullPathIn, filename);
-			
 			printf("TAR: Add File: %d: %s \n", i, fullPathIn);
 			printf("into: [%s] \n", (string(baseTargetDecompressorDirectory) + string(filename)).c_str());
-			
 			tarball.putFile(fullPathIn, (string(baseTargetDecompressorDirectory) + string(filename)).c_str());
 			
 			//Found mainApp?
@@ -470,14 +474,11 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 				FILE* TGDSLibraryFile = fopen(fullPathIn,"rb");
 				int err = Crc32_ComputeFile(TGDSLibraryFile, (uint32_t*)&crc32mainApp);
 				fclose(TGDSLibraryFile);
-
 				printf("mainApp[%s] CRC32: %x\n", filename, crc32mainApp);
 			}
 			
 		}
 	}
-	
-	//ok
 	
 	//crc32TGDSSDK
 	//libcnano7.a
@@ -500,7 +501,6 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		return -1;
 	}
 
-	
 	TGDSLibraryFile = fopen((string(TGDSLibrarySourceDirectory) + string("\\") + string("libcnano9.a")).c_str(),"rb");
 	if(TGDSLibraryFile != NULL){	
 		err = Crc32_ComputeFile(TGDSLibraryFile, (uint32_t*)&crc32TGDSSDKlibcnano9);
@@ -511,7 +511,6 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		return -1;
 	}
 
-	
 	TGDSLibraryFile = fopen((string(TGDSLibrarySourceDirectory) + string("\\") + string("libtoolchaingen7.a")).c_str(),"rb");
 	if(TGDSLibraryFile != NULL){	
 		err = Crc32_ComputeFile(TGDSLibraryFile, (uint32_t*)&crc32TGDSSDKlibtoolchaingen7);
@@ -522,7 +521,6 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		return -1;
 	}
 
-	
 	TGDSLibraryFile = fopen((string(TGDSLibrarySourceDirectory) + string("\\") + string("libtoolchaingen9.a")).c_str(),"rb");
 	if(TGDSLibraryFile != NULL){	
 		err = Crc32_ComputeFile(TGDSLibraryFile, (uint32_t*)&crc32TGDSSDKlibtoolchaingen9);
@@ -532,7 +530,6 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		printf("libtoolchaingen9.a missing. Make sure you build ToolchainGenericDS first!");
 		return -1;
 	}
-	//ok
 
 	/* Write the descriptor */
 	char TGDSDescriptorBuffer[256+1];
@@ -550,9 +547,6 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	tarball.finish();
 	/* close the file */
 	out.close();
-	/* we're done */
-
-	//ok
 
 	//gz zip the tarball
 	if(file_compress(fullPathOuttar, "w+b") == Z_OK){
@@ -565,4 +559,71 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	}
 
     return 0;
+}
+
+//Test case: 
+//toolchaingenericds-utils remotebooter /release 192.168.43.61 twl_mode ToolchainGenericDS-multimediaplayer / C:/toolchain_generic/6.2_2016q4/arm-eabi/lib/newlib-nano-2.1-nds/
+
+//Packages a destination directory and sends it to ToolchainGenericDS-multiboot remoteboot command
+int TGDSRemoteBooter(int argc, char *argv[]){
+	printf("TGDSRemoteBooter Start\n");
+	//debug start
+	//arg 0: [remotebooter]
+	//arg 1: [/TGDSProjectSourceDirectory]
+	//arg 2: [NintendoDS IP:xxx.xxx.xxx.xxx format]
+	/*
+	char arg0[256], arg1[256], arg2[256], arg3[256];
+	{
+		argc = 3;
+		strcpy(arg0, "remotebooter");
+		getCWDWin(arg1, "/Debug/release/"); //debug
+		argv[1] = (char*)&arg1[0];
+
+		strcpy(arg2, "192.168.43.61");
+		strcpy(arg3, "twl_mode");
+		argv[0] = (char*)&arg0[0];
+		argv[1] = (char*)&arg1[0];
+		argv[2] = (char*)&arg2[0];
+		argv[3] = (char*)&arg3[0];
+	}
+	*/
+	//debug end
+	
+	//Build TGDS Package
+	int argcPackage = 6;
+	char * argvPackage[6];
+	char TGDSProjectName[256];
+	char baseTargetDecompressorDirectory[256];
+	char TGDSLibrarySourceDirectory[256];
+	char TGDSProjectNTRorTWLMode[256];
+	char TGDSProjectSourceDirectory[256];
+	
+	//debug
+		//strcpy(TGDSProjectName, "ToolchainGenericDS-multimediaplayer");
+		//strcpy(baseTargetDecompressorDirectory, "/"); //where PKG is decompressed on target directory on NDS FS
+		//strcpy(TGDSLibrarySourceDirectory, "C:/toolchain_generic/6.2_2016q4/arm-eabi/lib/newlib-nano-2.1-nds/"); //$(LIBPATH)
+	
+	//release
+		strcpy(TGDSProjectName, argv[4]);
+		strcpy(baseTargetDecompressorDirectory, argv[5]);
+		strcpy(TGDSLibrarySourceDirectory, argv[6]);
+	
+	getCWDWin(TGDSProjectSourceDirectory, argv[1]); //release
+	strcat(TGDSProjectSourceDirectory, "/");
+	strcpy(TGDSProjectNTRorTWLMode, argv[3]); 
+	argvPackage[0] = argv[0];
+	argvPackage[1] = (char*)&TGDSProjectName[0];
+	argvPackage[2] = (char*)&baseTargetDecompressorDirectory[0];
+	argvPackage[3] = (char*)&TGDSLibrarySourceDirectory[0];
+	argvPackage[4] = (char*)&TGDSProjectSourceDirectory[0];
+	argvPackage[5] = (char*)&TGDSProjectNTRorTWLMode[0]; //ntr_mode or twl_mode
+	
+	//printf("TGDSRemoteBooter: \narg0: %s \narg1: %s \narg2: %s \narg3: %s \narg4: %s \narg5: %s", argvPackage[0], argvPackage[1], argvPackage[2], argvPackage[3] , argvPackage[4], argvPackage[5]);
+	int result = TGDSPKGBuilder(argcPackage, argvPackage);
+	
+	//now send to NDS
+
+
+	printf("TGDSRemoteBooter End\n");
+	return 0;
 }

@@ -8,6 +8,7 @@
 
 #ifdef _WIN32
 #include <windows.h> // WinApi header
+#include <string>
 
 enum COLOR
  {
@@ -32,6 +33,18 @@ enum COLOR
      YELLOW_FADE_BACKGROUND=YELLOW_FADE_TEXT<<4, WHITE_FADE_BACKGROUND=WHITE_FADE_TEXT<<4
  };
 
+class dirItem {
+private:
+	std::string path;
+	int type;
+
+public: 
+	dirItem(std::string inPath, int inType){
+		path = inPath;
+		type = inType;
+	}
+};
+
 #include <tchar.h> 
 #include <stdio.h>
 #include <strsafe.h>
@@ -55,6 +68,7 @@ using namespace std; // std::cout, std::cin
 
 #ifdef __cplusplus
 extern std::vector<std::string> list_directory(const std::string &directory);
+extern std::vector<dirItem> list_directoryByType(const std::string &directory);
 extern std::vector<std::string> findFiles(const std::string &directory, const std::string &extension);
 extern std::string getFileName(std::string filePath, bool withExtension);
 extern std::string getFileNameNoExtension(std::string filename);

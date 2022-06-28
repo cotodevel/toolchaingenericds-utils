@@ -26,9 +26,14 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #endif
+#ifndef _MSC_VER
+#include <dirent.h>
+#endif
+#include <vector>
 #include <limits.h>
 using namespace std; // std::cout, std::cin
 
+#include "ToolchainGenericDSFS/fatfslayerTGDS.h"
 /*
 C++ example:
 string curDirPath = "/";
@@ -40,10 +45,6 @@ cout << files.at(i) << "\n";
 }   
 */
 
-#ifndef _MSC_VER
-#include <dirent.h>
-#endif
-#include <vector>
 std::vector<std::string> list_directory(const std::string &directory)
 {
     std::vector<std::string> dir_list;
@@ -79,6 +80,67 @@ std::vector<std::string> list_directory(const std::string &directory)
     #endif
     return dir_list;
 }
+
+
+#ifndef _MSC_VER
+#include <dirent.h>
+#endif
+std::vector<dirItem> list_directoryByType(const std::string &directory){
+    std::vector<dirItem> dir_list;
+    #ifdef _MSC_VER
+    WIN32_FIND_DATAA findData;
+    HANDLE hFind = INVALID_HANDLE_VALUE;
+    std::string full_path = directory + "\\*";
+    hFind = FindFirstFileA(full_path.c_str(), &findData);
+    if (hFind == INVALID_HANDLE_VALUE){
+        throw std::runtime_error("Invalid handle value! Please check your path...");
+	}
+    while (FindNextFileA(hFind, &findData) != 0){
+		int objType = 0;
+		std::string fileDirName;
+		//dir
+		if ((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0){
+			objType = FT_DIR;
+			if(std::string(findData.cFileName) == ".."){
+				fileDirName = std::string(findData.cFileName);
+			}
+			else{
+				fileDirName = std::string("/") + std::string(findData.cFileName);
+			}
+		}
+		//file
+		else if ((findData.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE) != 0){
+			objType = FT_FILE;
+			fileDirName = std::string(findData.cFileName);
+		}
+		else{
+			objType = FT_NONE;
+			fileDirName = std::string("");
+		}
+		dirItem item(fileDirName, objType);
+		dir_list.push_back(item);
+    }
+    FindClose(hFind);
+    #endif
+    
+    #ifndef _MSC_VER
+    DIR *dir;
+    struct dirent *ent;
+    if ((dir = opendir (directory.c_str())) != NULL) { //""c:\\src\\""
+      /* print all the files and directories within directory */
+      while ((ent = readdir (dir)) != NULL) {
+        //printf ("%s\n", ent->d_name);
+        dir_list.push_back(std::string(ent->d_name));
+      }
+      closedir (dir);
+    } else {
+      /* could not open directory */
+      //printf ("dir fail");
+    }
+    #endif
+    return dir_list;
+}
+
 
 std::string first_numberstring(std::string const & str)
 {
@@ -132,11 +194,11 @@ std::string getFileNameNoExtension(std::string filename){
 void getCWDWin(char * outPath, char* pathToNavigate){
 	#ifdef _MSC_VER
 	//Output Directory
-	TCHAR Buffer[MAX_PATH];
+	LPWSTR Buffer[MAX_PATH];
 	DWORD dwRet;
-	dwRet = GetCurrentDirectory(MAX_PATH, Buffer);
+	dwRet = GetCurrentDirectory(MAX_PATH, LPWSTR(Buffer));
 	char converted[MAX_PATH];
-	wcstombs(converted, Buffer, wcslen(Buffer) + 1);
+	wcstombs(converted, LPWSTR(Buffer), wcslen(LPWSTR(Buffer)) + 1);
 	char outputFullPath[256+1];
 	strcpy(outputFullPath, (string(converted) + string(pathToNavigate)).c_str() );
 	strcpy(outPath, outputFullPath);

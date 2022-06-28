@@ -28,6 +28,8 @@ using namespace std;
 #define MAX_TGDSFILENAME_LENGTH ((int)256)
 #endif
 
+#define SIZE 256
+
 #endif
 
 extern void showMenu(char * appName);
@@ -36,3 +38,4 @@ extern int convertbin2c(int argc, char *argv[]);
 extern int convertMP4toTVS(int argc, char *argv[] );
 extern int TGDSPKGBuilder(int argc, char *argv[] );
 extern int TGDSRemoteBooter(int argc, char *argv[]);
+extern void send_file(FILE *fp, int sockfd);

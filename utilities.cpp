@@ -1,5 +1,10 @@
 #ifdef WIN32
+
+
 #include "stdafx.h"
+#include <winsock2.h>
+#pragma comment(lib,"ws2_32.lib")
+
 //disable _CRT_SECURE_NO_WARNINGS message to build this in VC++
 #pragma warning(disable:4996)
 #pragma warning(disable:4703)
@@ -27,6 +32,12 @@
 #include <string>
 #include "crc32Tool.h"
 #include "zlib-1.2.11/zlib.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
 using namespace std; // std::cout, std::cin
 
 #ifdef GCC
@@ -561,6 +572,24 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
     return 0;
 }
 
+void send_file(FILE *fp, int sockfd){
+	//Linux
+	int n;
+	char Sbuffer[SIZE] = {0};
+	while((n = fread(Sbuffer, sizeof(char), SIZE, fp)) > 0){
+		if((n = send(sockfd, Sbuffer, strlen(Sbuffer), 0)) < 0) {
+			printf("Error in sending file.");
+		}
+		else{
+			//printf("sent!");
+		}
+		memset(Sbuffer, 0, SIZE);
+	}
+
+	printf("Send OK!");
+	
+}
+
 //Test case: 
 //toolchaingenericds-utils remotebooter /release 192.168.43.61 twl_mode ToolchainGenericDS-multimediaplayer / C:/toolchain_generic/6.2_2016q4/arm-eabi/lib/newlib-nano-2.1-nds/
 
@@ -622,8 +651,56 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	int result = TGDSPKGBuilder(argcPackage, argvPackage);
 	
 	//now send to NDS
+	
+    WSADATA wsa;
+    SOCKET s = INVALID_SOCKET;
+    struct sockaddr_in server_addr, client_addr;
+    unsigned short server_port = 80;
+    char* server_ip = argv[2];
+    int client_addr_len;
+    char message[2000];
+    int r, exitCode = 1;
 
+    system("cls");
+    printf("\t\tTCP ECHO CLIENT\n\n");
+    printf("Connecting to TCP echo server on the IP %s\n", server_ip);
 
+    printf("Initialising WinSock....\n");
+    if ((r = WSAStartup(MAKEWORD(2, 2), &wsa)) != 0) {
+        printf("ERROR: Initialising failed with error Code : %d", r);
+        return -1;
+    }
+    printf("Successfully initialised.\n");
+
+    if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
+        printf("ERROR: Socket creating failed with error code: %d", WSAGetLastError());
+		return -1;
+	}
+    printf("Socket created successfully.\n");
+
+    server_addr.sin_addr.s_addr = inet_addr(server_ip);
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(server_port);
+
+    if (connect(s, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        printf("ERROR: Cannot connect to server %s", server_ip);
+		return -1;
+    }
+    printf("Connected to NintendoDS %s on port %d\n", server_ip, server_port);
+
+    //Send request
+	string TGDSPKGFile = string(argv[1]) + string("/"); //+ string(argv[4]) + string(".tar.gz");
+	char fullPath[256];
+	getCWDWin(fullPath, (char*)TGDSPKGFile.c_str()); //debug
+	strcat(fullPath, (string(argv[4]) + string(".tar.gz")).c_str());
+	FILE * TGDSPKGToSendfh = fopen(fullPath, "rb");
+	if(TGDSPKGToSendfh != NULL){
+		printf("\n Begin sending file: %s @ %s \n ", fullPath, argv[2] );
+		send_file(TGDSPKGToSendfh, s);
+	}
+	else{
+		printf("\n failure opening: %s\n ", fullPath);
+	}
 	printf("TGDSRemoteBooter End\n");
 	return 0;
 }

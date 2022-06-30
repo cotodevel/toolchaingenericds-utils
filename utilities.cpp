@@ -72,6 +72,128 @@ bool cv_snprintf(char* buf, int len, const char* fmt, ...){
 }
 #endif
 
+//deps from TGDS not included in TGDS-utils
+#if !defined(ARM9)
+int	FS_getFileSize(char *filename){	
+	FILE * f = fopen(filename, "rb");
+	if (f == NULL){
+		return -1;
+	}
+	fseek(f, 0, SEEK_END);
+	int size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	fclose(f);
+	return size;
+}
+
+//Server:
+//Open a port and listen through it. Synchronous/blocking.
+#if (defined(__GNUC__) && !defined(__clang__))
+__attribute__((optimize("O0")))
+#endif
+int openServerSyncConn(int SyncPort, struct sockaddr_in * sain){
+	int srv_len = sizeof(struct sockaddr_in);
+	memset(sain, 0, srv_len);
+	sain->sin_port = htons(SyncPort);//default listening port
+	sain->sin_addr.s_addr = INADDR_ANY;	//the socket will be bound to all local interfaces (and we just have one up to this point, being the DS Client IP acquired from the DHCP server).
+	
+	int my_socket = socket(AF_INET, SOCK_STREAM, 0);
+	int enable = 0;
+	if (setsockopt(my_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&enable, sizeof(int)) < 0){	//socket can be respawned ASAP if it's dropped
+		closesocket(my_socket); // remove the socket.
+		return -1;
+	}
+	if(my_socket == -1){
+		return -1;
+	}
+	int retVal = bind(my_socket,(struct sockaddr*)sain, srv_len);
+	if(retVal == -1){
+		closesocket(my_socket);
+		return -1;
+	}
+	
+	int MAXCONN = 20;
+	retVal = listen(my_socket, MAXCONN);
+	if(retVal == -1){
+		closesocket(my_socket);
+		return -1;
+	}
+	return my_socket;
+}
+
+void getMyIP(IP_v4 * myIP)
+{
+    char szBuffer[1024];
+
+    #ifdef WIN32
+    WSADATA wsaData;
+    WORD wVersionRequested = MAKEWORD(2, 0);
+    if(::WSAStartup(wVersionRequested, &wsaData) != 0){
+        
+	}
+    #endif
+
+
+    if(gethostname(szBuffer, sizeof(szBuffer)) == SOCKET_ERROR)
+    {
+      #ifdef WIN32
+      WSACleanup();
+      #endif
+    }
+
+    struct hostent *host = gethostbyname(szBuffer);
+    if(host == NULL)
+    {
+      #ifdef WIN32
+      WSACleanup();
+      #endif
+    }
+
+    //Obtain the computer's IP
+    myIP->b1 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b1;
+    myIP->b2 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b2;
+    myIP->b3 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b3;
+    myIP->b4 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b4;
+
+    #ifdef WIN32
+    WSACleanup();
+    #endif
+}
+
+int Wifi_GetIP(){
+	#ifndef WIN32
+	//todo: Linux
+	char host[256];
+	char *IP;
+	struct hostent *host_entry;
+	int hostname;
+	hostname = gethostname(host, sizeof(host)); //find the host name
+	check_host_name(hostname);
+	host_entry = gethostbyname(host); //find host information
+	check_host_entry(host_entry);
+	IP = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0])); //Convert into IP string
+	#endif
+	
+	#ifdef WIN32
+	struct IP_v4 v4;
+	getMyIP(&v4);
+	return (int)( (v4.b1 << 0) | (v4.b2 << 8) | (v4.b3 << 16) | (v4.b4 << 24) ); //order may be wrong
+	#endif
+	return 0;
+}
+
+char * print_ip(uint32 ip, char * outBuf){
+    uint8 bytes[4];
+    bytes[0] = ip & 0xFF;
+    bytes[1] = (ip >> 8) & 0xFF;
+    bytes[2] = (ip >> 16) & 0xFF;
+    bytes[3] = (ip >> 24) & 0xFF;	
+    sprintf(outBuf,"%d.%d.%d.%d\n", bytes[0], bytes[1], bytes[2], bytes[3]);
+	return outBuf;
+}
+
+#endif
+
 //All args starting from 1 are arranged to start from 0
 void orderArgs(int argc, char *argv[]){
 	vector<char *> vect;
@@ -444,7 +566,7 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	strcpy(outputPKGPath, (string(argv[4]) + string("\\")).c_str() ); //strcpy(outputPKGPath, (string(converted) + string("\\..\\Debug")).c_str() );
 	
 	printf("\nSource files Directory: %s\n", argv[4]);
-	std::vector<std::string> vec = list_directory(string(argv[4]));	
+	std::vector<dirItem> vec = list_directoryByType(string(argv[4]));	
 	printf("\nSource files Count: %d\n", vec.size());
 	
 	int crc32mainApp =-1;
@@ -468,26 +590,30 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	lindenb::io::Tar tarball(out);
 	
 	for(int i = 0; i < vec.size(); i++){
-		char * filename = (char*)vec.at(i).c_str();
+		dirItem item = vec.at(i);
+		char * filename = (char*)item.path.c_str();
 		if( (string(filename) != "..") && ((string(TGDSProjectName) + string(".tar")) != string(filename)) && ((string(TGDSProjectName) + string(".tar.gz")) != string(filename)) ){
+			/* Add a file */
+			if(item.type == FT_FILE){
+				char fullPathIn[256+1];
+				strcpy(fullPathIn, (argv[4]));
+				strcat(fullPathIn, filename);
+				printf("TAR: Add File: %d: %s \n", i, fullPathIn);
+				printf("into: [%s] \n", (string(baseTargetDecompressorDirectory) + string(filename)).c_str());
+				tarball.putFile(fullPathIn, (string(baseTargetDecompressorDirectory) + string(filename)).c_str());
 			
-			/* add a file */
-			char fullPathIn[256+1];
-			strcpy(fullPathIn, (argv[4]));
-			strcat(fullPathIn, filename);
-			printf("TAR: Add File: %d: %s \n", i, fullPathIn);
-			printf("into: [%s] \n", (string(baseTargetDecompressorDirectory) + string(filename)).c_str());
-			tarball.putFile(fullPathIn, (string(baseTargetDecompressorDirectory) + string(filename)).c_str());
-			
-			//Found mainApp?
-			if(string(TGDSMainApp) == string(filename)){
-				//unsigned long crc32 = -1;
-				FILE* TGDSLibraryFile = fopen(fullPathIn,"rb");
-				int err = Crc32_ComputeFile(TGDSLibraryFile, (uint32_t*)&crc32mainApp);
-				fclose(TGDSLibraryFile);
-				printf("mainApp[%s] CRC32: %x\n", filename, crc32mainApp);
+				//Found mainApp?
+				if(string(TGDSMainApp) == string(filename)){
+					//unsigned long crc32 = -1;
+					FILE* TGDSLibraryFile = fopen(fullPathIn,"rb");
+					int err = Crc32_ComputeFile(TGDSLibraryFile, (uint32_t*)&crc32mainApp);
+					fclose(TGDSLibraryFile);
+					printf("mainApp[%s] CRC32: %x\n", filename, crc32mainApp);
+				}
 			}
-			
+			else if(item.type == FT_DIR){
+				//todo: read dir, iterate contents, then create dir and files inside, in TAR 
+			}
 		}
 	}
 	
@@ -572,24 +698,6 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
     return 0;
 }
 
-void send_file(FILE *fp, int sockfd){
-	//Linux
-	int n;
-	char Sbuffer[SIZE] = {0};
-	while((n = fread(Sbuffer, sizeof(char), SIZE, fp)) > 0){
-		if((n = send(sockfd, Sbuffer, strlen(Sbuffer), 0)) < 0) {
-			printf("Error in sending file.");
-		}
-		else{
-			//printf("sent!");
-		}
-		memset(Sbuffer, 0, SIZE);
-	}
-
-	printf("Send OK!");
-	
-}
-
 //Test case: 
 //toolchaingenericds-utils remotebooter /release 192.168.43.61 twl_mode ToolchainGenericDS-multimediaplayer / C:/toolchain_generic/6.2_2016q4/arm-eabi/lib/newlib-nano-2.1-nds/
 
@@ -651,56 +759,12 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	int result = TGDSPKGBuilder(argcPackage, argvPackage);
 	
 	//now send to NDS
-	
-    WSADATA wsa;
-    SOCKET s = INVALID_SOCKET;
-    struct sockaddr_in server_addr, client_addr;
-    unsigned short server_port = 80;
-    char* server_ip = argv[2];
-    int client_addr_len;
-    char message[2000];
-    int r, exitCode = 1;
-
-    system("cls");
-    printf("\t\tTCP ECHO CLIENT\n\n");
-    printf("Connecting to TCP echo server on the IP %s\n", server_ip);
-
-    printf("Initialising WinSock....\n");
-    if ((r = WSAStartup(MAKEWORD(2, 2), &wsa)) != 0) {
-        printf("ERROR: Initialising failed with error Code : %d", r);
-        return -1;
-    }
-    printf("Successfully initialised.\n");
-
-    if ((s = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) {
-        printf("ERROR: Socket creating failed with error code: %d", WSAGetLastError());
-		return -1;
-	}
-    printf("Socket created successfully.\n");
-
-    server_addr.sin_addr.s_addr = inet_addr(server_ip);
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(server_port);
-
-    if (connect(s, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        printf("ERROR: Cannot connect to server %s", server_ip);
-		return -1;
-    }
-    printf("Connected to NintendoDS %s on port %d\n", server_ip, server_port);
-
-    //Send request
-	string TGDSPKGFile = string(argv[1]) + string("/"); //+ string(argv[4]) + string(".tar.gz");
+    string TGDSPKGFile = string(argv[1]) + string("/"); //+ string(argv[4]) + string(".tar.gz");
 	char fullPath[256];
 	getCWDWin(fullPath, (char*)TGDSPKGFile.c_str()); //debug
 	strcat(fullPath, (string(argv[4]) + string(".tar.gz")).c_str());
-	FILE * TGDSPKGToSendfh = fopen(fullPath, "rb");
-	if(TGDSPKGToSendfh != NULL){
-		printf("\n Begin sending file: %s @ %s \n ", fullPath, argv[2] );
-		send_file(TGDSPKGToSendfh, s);
-	}
-	else{
-		printf("\n failure opening: %s\n ", fullPath);
-	}
+	printf("\n Begin sending file: %s @ %s \n ", fullPath, argv[2] );
+	//sendfile(fullPath); //todo, use HTTP Server to perform transfers
 	printf("TGDSRemoteBooter End\n");
 	return 0;
 }

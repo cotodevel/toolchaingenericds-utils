@@ -30,6 +30,17 @@ using namespace std;
 
 #define SIZE 256
 
+#if defined(WIN32)
+#include "TGDSVideoConverter/TGDSTypes.h"
+#endif
+#if defined(WIN32) || !defined(ARM9)
+#define TGDSDirectorySeparator ((char*)"/")
+#endif
+
+typedef struct IP_v4
+{
+    unsigned char b1, b2, b3, b4;
+} IP_v4;
 #endif
 
 extern void showMenu(char * appName);
@@ -38,4 +49,10 @@ extern int convertbin2c(int argc, char *argv[]);
 extern int convertMP4toTVS(int argc, char *argv[] );
 extern int TGDSPKGBuilder(int argc, char *argv[] );
 extern int TGDSRemoteBooter(int argc, char *argv[]);
-extern void send_file(FILE *fp, int sockfd);
+
+#if !defined(ARM9)
+extern int	FS_getFileSize(char *filename);
+extern int Wifi_GetIP();
+extern void getMyIP(IP_v4 * myIP);
+extern char * print_ip(uint32 ip, char * outBuf);
+#endif

@@ -111,6 +111,9 @@
     <ClInclude Include="crc32Tool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="http\server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -204,6 +207,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="crc32Tool.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="http\server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="http\header.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="http\response.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="http\request.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="http\error.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="http\defaults.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

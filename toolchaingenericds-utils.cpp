@@ -14,6 +14,7 @@
 #include "utilities.h"
 #include "winDir.h"
 #include "TGDSVideoConverter/lzss9.h"
+#include "http/server.h"
 
 #include <string>
 #include <vector>
@@ -29,6 +30,7 @@ void showMenu(char * appName){
 	printf("	[mp4totvs] TGDS-Videoconverter, emits *.TVS video+audio streams playable in ToolchainGenericDS-multimediaplayer (cmd only) \n");
 	printf("	[pkgbuilder]  TGDSProjectName [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSProjectSourceDirectory] [ntr_mode/twl_mode] \n");
 	printf("	[remotebooter]  [/TGDSProjectSourceDirectory] [NintendoDS IP:xxx.xxx.xxx.xxx format] [ntr_mode/twl_mode] [TGDSProjectName] [baseTargetDecompressorDirectory] [TGDSLibrarySourceDirectory] \n");
+	printf("    [httpserver] (maps a HTTP Server relative to local directory called)");
 }
 
 int main( int argc, char *argv[] ){
@@ -55,6 +57,10 @@ int main( int argc, char *argv[] ){
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "remotebooter", strlen("remotebooter")) == 0)){
 		orderArgs(argc, argv);
 		return TGDSRemoteBooter(argc, argv);
+	}
+	else if( (argv[1] != NULL) && (strncmp(argv[1], "httpserver", strlen("httpserver")) == 0)){
+		orderArgs(argc, argv);
+		return mainHTTPServer(argc, argv);
 	}
 	else{
 		printf("\nMissing or Wrong Command\n");

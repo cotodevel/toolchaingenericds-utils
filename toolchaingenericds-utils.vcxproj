@@ -83,6 +83,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="crc32Tool.h" />
+    <ClInclude Include="http\server.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="tarball.h" />
     <ClInclude Include="targetver.h" />
@@ -116,6 +117,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="crc32Tool.c" />
+    <ClCompile Include="http\defaults.cpp" />
+    <ClCompile Include="http\error.cpp" />
+    <ClCompile Include="http\header.cpp" />
+    <ClCompile Include="http\request.cpp" />
+    <ClCompile Include="http\response.cpp" />
+    <ClCompile Include="http\server.cpp" />
     <ClCompile Include="tarball.cpp" />
     <ClCompile Include="TGDSVideoConverter\bmp.cpp" />
     <ClCompile Include="TGDSVideoConverter\lzss9.c" />

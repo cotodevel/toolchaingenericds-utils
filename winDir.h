@@ -34,11 +34,9 @@ enum COLOR
  };
 
 class dirItem {
-private:
+public: 
 	std::string path;
 	int type;
-
-public: 
 	dirItem(std::string inPath, int inType){
 		path = inPath;
 		type = inType;

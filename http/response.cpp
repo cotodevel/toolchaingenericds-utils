@@ -52,7 +52,7 @@ RESPONSE *GetResponse(REQUEST *request)
     return response;
 }
 
-int SendResponse(SOCKET sock, RESPONSE *response)
+int SendResponse(SOCKET sock, RESPONSE *response, bool exitAfterSentSingleFile)
 {
 	char buf[1024] = {0};
     int msg_len;
@@ -78,7 +78,6 @@ int SendResponse(SOCKET sock, RESPONSE *response)
         msg_len = send(sock, buf, result, 0);
 
         if (msg_len == SOCKET_ERROR) {
-            //error_live("send()");
             printf("Error sending data, reconnecting...\n");
             closesocket(sock);
             return -1;
@@ -88,11 +87,16 @@ int SendResponse(SOCKET sock, RESPONSE *response)
             printf("Client closed connection\n");
             closesocket(sock);
             return 0;
-            //WSACleanup();
         }
     }
 
     printf("Served file %s\n", response->filepath);
+
+	//Single file transfer? Close server
+	if(exitAfterSentSingleFile == true){
+		closesocket(sock);
+        return 0;
+	}
 
     return 1;
 }

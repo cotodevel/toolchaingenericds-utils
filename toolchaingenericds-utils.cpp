@@ -30,7 +30,7 @@ void showMenu(char * appName){
 	printf("	[mp4totvs] TGDS-Videoconverter, emits *.TVS video+audio streams playable in ToolchainGenericDS-multimediaplayer (cmd only) \n");
 	printf("	[pkgbuilder]  TGDSProjectName [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSProjectSourceDirectory] [ntr_mode/twl_mode] \n");
 	printf("	[remotebooter]  [/TGDSProjectSourceDirectory] [NintendoDS IP:xxx.xxx.xxx.xxx format] [ntr_mode/twl_mode] [TGDSProjectName] [baseTargetDecompressorDirectory] [TGDSLibrarySourceDirectory] \n");
-	printf("    [httpserver] (maps a HTTP Server relative to local directory called)");
+	printf("    [httpserver] [-quit]");
 }
 
 int main( int argc, char *argv[] ){

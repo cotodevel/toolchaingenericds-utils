@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "server.h"
+#include "../utilities.h"
 
 #pragma comment(lib,"ws2_32.lib")
 
@@ -10,8 +11,11 @@
 #pragma warning(disable:4996)
 #pragma warning(disable:4703)
 
-int mainHTTPServer(int argc, char **argv)
-{
+int mainHTTPServer(int argc, char **argv){
+	bool quitAfterSentSingleFileToClient=false;
+	if( (argv[1] != NULL) && (strncmp(argv[1], "-quit", strlen("-quit")) == 0)){
+		quitAfterSentSingleFileToClient=true;
+	}
     int addr_len;
     struct sockaddr_in local, client_addr;
 	int count = 0;
@@ -39,7 +43,16 @@ listen_goto:
     if (listen(sock, 10) == SOCKET_ERROR){
         printf("listen()");
 	}
-    printf("Waiting for connection...\n");
+	char IP[64];
+	
+	printf("\n\nHTTP 1.0 Server. Port: %d - Mounted at: %s", DEFAULT_PORT, print_ip(Wifi_GetIP(),IP));
+	if(quitAfterSentSingleFileToClient == true){
+		printf("Quit inmediately after file transfer: ENABLED\n");
+	}
+	else{
+		printf("Quit inmediately after file transfer: DISABLED\n");
+	}
+	printf("Waiting for connection...\n");
 
     
 
@@ -61,7 +74,7 @@ listen_goto:
             continue;
 
         RESPONSE *response = GetResponse(request);
-        int sent = SendResponse(msg_sock, response);
+        int sent = SendResponse(msg_sock, response, quitAfterSentSingleFileToClient);
 
         closesocket(msg_sock);
 

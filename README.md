@@ -42,8 +42,11 @@ toolchaingenericds-utils [Command] arg0 arg1 arg2 argN
 		__Description__
 		Packages a destination directory and sends it to ToolchainGenericDS-multiboot remoteboot command
 		Note: TGDSProjectName refers to the TGDS Project's main NTR/TWL binary name.
-
-
+	
+	
+	[httpserver] [-quit: [Optional] Quits after sending 1 file to client connected.]
+		__Description__
+		Maps a HTTP Server relative to local directory.
 
 
 Other tools:

@@ -37,7 +37,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-
+#include "http/server.h"
 using namespace std; // std::cout, std::cin
 
 #ifdef GCC
@@ -548,10 +548,10 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		strcpy(baseTargetDecompressorDirectory, "");
 	}
 	
-	char TGDSProjectName[256+1];
-	strcpy(TGDSProjectName, argv[1]); //strcpy(TGDSProjectName, "ToolchainGenericDS-template");
-	char TGDSMainApp[256+1];
-	strcpy(TGDSMainApp, TGDSProjectName);
+	char TarName[256];
+	strcpy(TarName, argv[1]);
+	char TGDSMainApp[256];
+	strcpy(TGDSMainApp, TarName);
 
 	if( (argv[5] != NULL) && (strncmp(argv[5], "twl_mode", strlen("twl_mode")) == 0)){
 		strcat(TGDSMainApp, ".srl");
@@ -576,7 +576,16 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	char fullPathOuttar[256+1];
 	memset(fullPathOuttar, 0, sizeof(fullPathOuttar));
 	strcpy(fullPathOuttar, outputPKGPath);
-	strcat(fullPathOuttar, (string(argv[1]) + string(".tar")).c_str());
+	//override package name? If not, use the default name from the Main App
+	if(argv[6] != NULL){
+		strcpy(TarName, ("..\\" + string(argv[6]) + string(".tar")).c_str());
+		strcat(fullPathOuttar, TarName);
+	}
+	else{
+		strcpy(TarName, ("..\\" + string(argv[1]) + string(".tar")).c_str());
+		strcat(fullPathOuttar, TarName);
+	}
+
 
 	/* open file for writing */
 	std::fstream out(fullPathOuttar,std::ios::out | std::ios::binary);
@@ -592,7 +601,7 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	for(int i = 0; i < vec.size(); i++){
 		dirItem item = vec.at(i);
 		char * filename = (char*)item.path.c_str();
-		if( (string(filename) != "..") && ((string(TGDSProjectName) + string(".tar")) != string(filename)) && ((string(TGDSProjectName) + string(".tar.gz")) != string(filename)) ){
+		if( (string(filename) != "..") && (string(TarName) != string(filename)) && ((string(TarName) + string(".gz")) != string(filename)) ){
 			/* Add a file */
 			if(item.type == FT_FILE){
 				char fullPathIn[256+1];
@@ -689,6 +698,7 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	if(file_compress(fullPathOuttar, "w+b") == Z_OK){
 		rename(fullPathOuttar, (string(fullPathOuttar)+string(".gz")).c_str());
 		printf("TGDSPKG %s build OK \n", (string(fullPathOuttar)+string(".gz")).c_str());
+		
 	}
 	else
 	{
@@ -699,7 +709,7 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 }
 
 //Test case: 
-//toolchaingenericds-utils remotebooter /release 192.168.43.61 twl_mode ToolchainGenericDS-multimediaplayer / C:/toolchain_generic/6.2_2016q4/arm-eabi/lib/newlib-nano-2.1-nds/
+//toolchaingenericds-utils remotebooter /release 192.168.43.82 twl_mode ToolchainGenericDS-multimediaplayer / C:/toolchain_generic/6.2_2016q4/arm-eabi/lib/newlib-nano-2.1-nds/ remotepackage
 
 //Packages a destination directory and sends it to ToolchainGenericDS-multiboot remoteboot command
 int TGDSRemoteBooter(int argc, char *argv[]){
@@ -727,8 +737,8 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	//debug end
 	
 	//Build TGDS Package
-	int argcPackage = 6;
-	char * argvPackage[6];
+	int argcPackage = 7;
+	char * argvPackage[7];
 	char TGDSProjectName[256];
 	char baseTargetDecompressorDirectory[256];
 	char TGDSLibrarySourceDirectory[256];
@@ -754,7 +764,8 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	argvPackage[3] = (char*)&TGDSLibrarySourceDirectory[0];
 	argvPackage[4] = (char*)&TGDSProjectSourceDirectory[0];
 	argvPackage[5] = (char*)&TGDSProjectNTRorTWLMode[0]; //ntr_mode or twl_mode
-	
+	argvPackage[6] = argv[8]; //override TGDS Package name if provided or use the default Main App one
+
 	//printf("TGDSRemoteBooter: \narg0: %s \narg1: %s \narg2: %s \narg3: %s \narg4: %s \narg5: %s", argvPackage[0], argvPackage[1], argvPackage[2], argvPackage[3] , argvPackage[4], argvPackage[5]);
 	int result = TGDSPKGBuilder(argcPackage, argvPackage);
 	
@@ -763,8 +774,11 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	char fullPath[256];
 	getCWDWin(fullPath, (char*)TGDSPKGFile.c_str()); //debug
 	strcat(fullPath, (string(argv[4]) + string(".tar.gz")).c_str());
-	printf("\n Begin sending file: %s @ %s \n ", fullPath, argv[2] );
-	//sendfile(fullPath); //todo, use HTTP Server to perform transfers
+	argcPackage = 2;
+	argvPackage[0] = "httpserver";
+	argvPackage[1] = (char*)"-quit";
+	
+	mainHTTPServer(argcPackage, argvPackage);
 	printf("TGDSRemoteBooter End\n");
 	return 0;
 }

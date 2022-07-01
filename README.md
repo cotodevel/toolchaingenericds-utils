@@ -38,10 +38,14 @@ toolchaingenericds-utils [Command] arg0 arg1 arg2 argN
 		Note: TGDSProjectName refers to the TGDS Project's main NTR/TWL binary name.
 	
 	
-	[remotebooter]  [/TGDSProjectSourceDirectory] [NintendoDS IP:xxx.xxx.xxx.xxx format] [ntr_mode/twl_mode] [TGDSProjectName] [baseTargetDecompressorDirectory] [TGDSLibrarySourceDirectory]
+	[remotebooter]  [/TGDSProjectSourceDirectory] [NintendoDS IP:xxx.xxx.xxx.xxx format] [ntr_mode/twl_mode] [TGDSProjectName] [baseTargetDecompressorDirectory] [TGDSLibrarySourceDirectory] [overridden TGDS Package Name]
 		__Description__
 		Packages a destination directory and sends it to ToolchainGenericDS-multiboot remoteboot command
 		Note: TGDSProjectName refers to the TGDS Project's main NTR/TWL binary name.
+		__Example__
+		Sending a TWL executable and its file dependencies remotely:
+		toolchaingenericds-utils remotebooter /release 192.168.43.82 twl_mode ToolchainGenericDS-multimediaplayer / C:/toolchain_generic/6.2_2016q4/arm-eabi/lib/newlib-nano-2.1-nds/ remotepackage
+		Now run ToolchainGenericDS-multiboot and enter remoteboot mode. Wait until package arrives and executes remotely.
 	
 	
 	[httpserver] [-quit: [Optional] Quits after sending 1 file to client connected.]

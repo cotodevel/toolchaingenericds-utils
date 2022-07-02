@@ -227,6 +227,9 @@
     <ClCompile Include="http\defaults.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="untgz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="zlib-1.2.11\make_vms.com">

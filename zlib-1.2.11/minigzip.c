@@ -74,7 +74,6 @@
 
 char *prog;
 
-void error            OF((const char *msg));
 int gz_compress      OF((FILE   *in, gzFile out));
 #ifdef USE_MMAP
 int  gz_compress_mmap OF((FILE   *in, gzFile out));
@@ -87,12 +86,13 @@ int  main             OF((int argc, char *argv[]));
 /* ===========================================================================
  * Display error message and exit
  */
+/*
 void error(const char *msg)
 {
     fprintf(stderr, "%s: %s\n", prog, msg);
     exit(1);
 }
-
+*/
 /* ===========================================================================
  * Compress input to output then close both files.
  */

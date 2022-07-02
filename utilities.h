@@ -33,6 +33,7 @@ using namespace std;
 #if defined(WIN32)
 #include "TGDSVideoConverter/TGDSTypes.h"
 #endif
+
 #if defined(WIN32) || !defined(ARM9)
 #define TGDSDirectorySeparator ((char*)"/")
 #endif
@@ -55,4 +56,13 @@ extern int	FS_getFileSize(char *filename);
 extern int Wifi_GetIP();
 extern void getMyIP(IP_v4 * myIP);
 extern char * print_ip(uint32 ip, char * outBuf);
+#endif
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+extern int untgzmain(int argc,char **argv);
+extern bool existFilePosix(char *fname);
+#ifdef __cplusplus
+}
 #endif

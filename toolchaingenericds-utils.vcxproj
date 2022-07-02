@@ -139,6 +139,7 @@
     <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ff.c" />
     <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ffsystem.c" />
     <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ffunicode.c" />
+    <ClCompile Include="untgz.c" />
     <ClCompile Include="utilities.cpp" />
     <ClCompile Include="winDir.cpp" />
     <ClCompile Include="zlib-1.2.11\adler32.c" />

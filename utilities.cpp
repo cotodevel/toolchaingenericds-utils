@@ -70,7 +70,18 @@ bool cv_snprintf(char* buf, int len, const char* fmt, ...){
 #endif
     return res >= 0 && res < len;
 }
+
+bool existFilePosix(char *fname){
+	bool exists = false;
+	FILE * f = fopen(fname, "rb"); 
+    if (f != NULL) { 
+        exists = true; 
+        fclose(f);
+    }
+    return exists;
+}
 #endif
+
 
 //deps from TGDS not included in TGDS-utils
 #if !defined(ARM9)

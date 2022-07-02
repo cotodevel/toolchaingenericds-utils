@@ -53,6 +53,10 @@ toolchaingenericds-utils [Command] arg0 arg1 arg2 argN
 		Maps a HTTP Server relative to local directory.
 
 
+	[untar] [-d] [/targetUntarDirectory] [/tarFilenameSource.tar.gz]
+		__Description__
+		Unpacks a TAR GZIP file. targetUntarDirectory is destination directory and tarFilenameSource.tar.gz is TAR file source
+		
 Other tools:
 
 TGDS filesystem support into ToolchainGenericDS:

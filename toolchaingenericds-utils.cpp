@@ -31,7 +31,11 @@ void showMenu(char * appName){
 	printf("	[pkgbuilder]  TGDSProjectName [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSProjectSourceDirectory] [ntr_mode/twl_mode] \n");
 	printf("	[remotebooter]  [/TGDSProjectSourceDirectory] [NintendoDS IP:xxx.xxx.xxx.xxx format] [ntr_mode/twl_mode] [TGDSProjectName] [baseTargetDecompressorDirectory] [TGDSLibrarySourceDirectory] \n");
 	printf("    [httpserver] [-quit]");
+	printf("    [untar] [-d] [/targetUntarDirectory] [/tarFilenameSource.tar.gz]");
 }
+
+char args[8][256];
+char *argvs[8];
 
 int main( int argc, char *argv[] ){
 	if(argc < 2){
@@ -62,9 +66,43 @@ int main( int argc, char *argv[] ){
 		orderArgs(argc, argv);
 		return mainHTTPServer(argc, argv);
 	}
+	else if( (argv[1] != NULL) && (strncmp(argv[1], "untar", strlen("untar")) == 0)){
+		orderArgs(argc, argv);
+		
+		/*
+		char filename[256];
+		getCWDWin(filename, "\\Release\\release/remotepackage.tar.gz");
+
+		//DS start
+		extern int untgzmain(int argc,char **argv);
+		//Open the incoming package
+		int argCount = 2;
+		char fileBuf[256];
+		memset(fileBuf, 0, sizeof(fileBuf));
+		strcpy(fileBuf, filename); //RemoteBootTGDSPackage name in FS (arg0)
+		strcpy(&args[0][0], "-d / ");	//Arg1
+		strcpy(&args[1][0], fileBuf);	//Arg2
+	
+		int i = 0;
+		for(i = 0; i < argCount; i++){	
+			argvs[i] = (char*)&args[i][0];
+		}
+	
+		remove("0:/descriptor.txt");
+		if(untgzmain(argCount, argvs) == 0){
+			printf("OK");
+		}
+		else{
+			printf("Fail");
+		}
+		//DS end
+		*/
+		
+		return untgzmain(argc, argv);
+	}
 	else{
 		printf("\nMissing or Wrong Command\n");
 	}
-	return 0;
+return 0;
 }
 

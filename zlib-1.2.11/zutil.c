@@ -8,6 +8,7 @@
 //disable _CRT_SECURE_NO_WARNINGS message to build this in VC++
 #pragma warning(disable:4996)
 
+#include "../TGDSVideoConverter/TGDSTypes.h"
 #include "zutil.h"
 
 #ifndef NO_DUMMY_DECL

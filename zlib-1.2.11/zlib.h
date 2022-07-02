@@ -33,13 +33,6 @@
 
 #include "zconf.h"
 
-#include <malloc.h>
-
-#define TGDSARM9Malloc malloc
-#define TGDSARM9Calloc calloc
-#define TGDSARM9Realloc realloc
-#define TGDSARM9Free free
-
 #ifdef __cplusplus
 extern "C" {
 #endif

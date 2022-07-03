@@ -8,6 +8,8 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <math.h>
+#include "zlib-1.2.11/zlib.h"
+#include "zlib-1.2.11/ioapi.h"
 
 #if !defined(WIN32)
 #include <stdbool.h>
@@ -63,6 +65,18 @@ extern "C"{
 #endif
 extern int untgzmain(int argc,char **argv);
 extern bool existFilePosix(char *fname);
+
+//zlib
+extern int gz_compress(FILE   *in, gzFile out);
+extern voidpf  fopen_file_func (voidpf opaque, const char* filename, int mode);
+extern uLong   fread_file_func (voidpf opaque, voidpf stream, void* buf, uLong size);
+extern uLong   fwrite_file_func (voidpf opaque, voidpf stream, const void* buf,uLong size);
+extern ZPOS64_T ftell64_file_func (voidpf opaque, voidpf stream);
+extern voidpf fopen64_file_func (voidpf opaque, const void* filename, int mode);
+extern long    fseek64_file_func (voidpf opaque, voidpf stream, ZPOS64_T offset, int origin);
+extern int     fclose_file_func (voidpf opaque, voidpf stream);
+extern int     ferror_file_func (voidpf opaque, voidpf stream);
+
 #ifdef __cplusplus
 }
 #endif

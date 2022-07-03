@@ -114,6 +114,18 @@
     <ClInclude Include="http\server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="zlib-1.2.11\zip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.2.11\iowin32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.2.11\ioapi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="zlib-1.2.11\crypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -228,6 +240,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="untgz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.2.11\minizip.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.2.11\zip.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.2.11\ioapi.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="zlib-1.2.11\iowin32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

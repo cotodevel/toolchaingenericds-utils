@@ -56,7 +56,13 @@ toolchaingenericds-utils [Command] arg0 arg1 arg2 argN
 	[untar] [-d] [/targetUntarDirectory] [/tarFilenameSource.tar.gz]
 		__Description__
 		Unpacks a TAR GZIP file. targetUntarDirectory is destination directory and tarFilenameSource.tar.gz is TAR file source
-		
+	
+	
+	[zipfiles] [zipFilenameToCreate] [file1ToAdd.ext] [file2ToAdd.ext]
+		__Description__
+		Creates a ZIP (deflated) file from a set of files. Do note depending on the filepath retrieved, these will inherited in the archive
+	
+	
 Other tools:
 
 TGDS filesystem support into ToolchainGenericDS:

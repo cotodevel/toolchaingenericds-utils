@@ -76,7 +76,9 @@ extern "C" {
 
 typedef voidpf (*alloc_func) OF((voidpf opaque, uInt items, uInt size));
 typedef void   (*free_func)  OF((voidpf opaque, voidpf address));
-
+typedef unsigned long z_crc_t;
+typedef long int off64_t;
+typedef int z_size_t;
 struct internal_state;
 
 typedef struct z_stream_s {

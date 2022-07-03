@@ -792,6 +792,15 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	char TGDSProjectNTRorTWLMode[256];
 	char TGDSProjectSourceDirectory[256];
 	
+	//arg7  = remotebooter
+	//arg6 = $(LIBPATTH)
+	//arg5 = should be "/" but it's C:/MinGW/msys/1.0
+	//arg4 = TGDS Main App entrypoint
+	//arg3 = twl_mode / ntr_mode
+	//arg2 = Remotebooter IP
+	//arg1 = TGDS Project source directory
+	//arg0 = remotebooter (shell cmd from tgds-utils binary)
+
 	//debug
 		//strcpy(TGDSProjectName, "ToolchainGenericDS-multimediaplayer");
 		//strcpy(baseTargetDecompressorDirectory, "/"); //where PKG is decompressed on target directory on NDS FS
@@ -812,8 +821,6 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	argvPackage[4] = (char*)&TGDSProjectSourceDirectory[0];
 	argvPackage[5] = (char*)&TGDSProjectNTRorTWLMode[0]; //ntr_mode or twl_mode
 	argvPackage[6] = argv[8]; //override TGDS Package name if provided or use the default Main App one
-
-	//printf("TGDSRemoteBooter: \narg0: %s \narg1: %s \narg2: %s \narg3: %s \narg4: %s \narg5: %s", argvPackage[0], argvPackage[1], argvPackage[2], argvPackage[3] , argvPackage[4], argvPackage[5]);
 	int result = TGDSPKGBuilder(argcPackage, argvPackage);
 	
 	//now send to NDS

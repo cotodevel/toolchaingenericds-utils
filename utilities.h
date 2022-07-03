@@ -31,6 +31,7 @@ using namespace std;
 #endif
 
 #define SIZE 256
+#define MAX_ARGV_BUFFER_SIZE_TGDSUTILS ((int)128) //max stacked argvs 
 
 #if defined(WIN32)
 #include "TGDSVideoConverter/TGDSTypes.h"
@@ -76,6 +77,7 @@ extern voidpf fopen64_file_func (voidpf opaque, const void* filename, int mode);
 extern long    fseek64_file_func (voidpf opaque, voidpf stream, ZPOS64_T offset, int origin);
 extern int     fclose_file_func (voidpf opaque, voidpf stream);
 extern int     ferror_file_func (voidpf opaque, voidpf stream);
+extern int mainZIPBuild(int argc, char *argv[]);
 
 #ifdef __cplusplus
 }

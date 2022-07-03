@@ -199,7 +199,7 @@ char * print_ip(uint32 ip, char * outBuf){
     bytes[1] = (ip >> 8) & 0xFF;
     bytes[2] = (ip >> 16) & 0xFF;
     bytes[3] = (ip >> 24) & 0xFF;	
-    sprintf(outBuf,"%d.%d.%d.%d\n", bytes[0], bytes[1], bytes[2], bytes[3]);
+    cv_snprintf(outBuf, sizeof(outBuf), "%d.%d.%d.%d\n", bytes[0], bytes[1], bytes[2], bytes[3]);
 	return outBuf;
 }
 
@@ -583,7 +583,6 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	int crc32mainApp =-1;
 	int crc32TGDSSDK =-1;
 
-	/* open file for writing */
 	char fullPathOuttar[256+1];
 	memset(fullPathOuttar, 0, sizeof(fullPathOuttar));
 	strcpy(fullPathOuttar, outputPKGPath);
@@ -597,18 +596,10 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		strcat(fullPathOuttar, TarName);
 	}
 
-
+	char zipArgs[10][256];
 	/* open file for writing */
-	std::fstream out(fullPathOuttar,std::ios::out | std::ios::binary);
-	printf("Tar Out: %s\n", fullPathOuttar);
-	
-	if(!out.is_open()){
-		std::cerr << "Cannot open out: " << string(fullPathOuttar) << std::endl;
-		return EXIT_FAILURE;
-	}
-	/* create the tar file */
-	lindenb::io::Tar tarball(out);
-	
+	string zipList = "";
+	int argStart = 3;
 	for(int i = 0; i < vec.size(); i++){
 		dirItem item = vec.at(i);
 		char * filename = (char*)item.path.c_str();
@@ -616,16 +607,44 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 			/* Add a file */
 			if(item.type == FT_FILE){
 				char fullPathIn[256+1];
-				strcpy(fullPathIn, (argv[4]));
+				strcpy(fullPathIn, outputPKGPath);
 				strcat(fullPathIn, filename);
-				printf("TAR: Add File: %d: %s \n", i, fullPathIn);
-				printf("into: [%s] \n", (string(baseTargetDecompressorDirectory) + string(filename)).c_str());
-				tarball.putFile(fullPathIn, (string(baseTargetDecompressorDirectory) + string(filename)).c_str());
-			
+				//printf("TAR: Add File: %d: %s \n", i, fullPathIn);
+				//printf("into: [%s] \n", (string(baseTargetDecompressorDirectory) + string(filename)).c_str());
+				//tarball.putFile(fullPathIn, (string(baseTargetDecompressorDirectory) + string(filename)).c_str());
+				
+				//copy files to make them relative to root path in upcoming zip archive
+				remove(filename);
+				ifstream infile(fullPathIn, std::ios::out | std::ios::binary);
+				if (infile)
+				{
+					istreambuf_iterator<char> ifit(infile);
+					ofstream outfile(filename, std::ios::out | std::ios::binary);
+					ostreambuf_iterator<char> ofit(outfile);
+					if (outfile)
+					{
+						copy(ifit, istreambuf_iterator<char>(), ofit);
+						outfile.close();
+					}
+					else
+					{
+						cerr << "Could not open output file" << "\n";
+					}
+					infile.close();
+					zipList+=(" "+string(filename));
+					strcpy(&zipArgs[argStart-3][0], filename);
+					argv[argStart] = (char*)&zipArgs[argStart-3][0];
+					argStart++;
+				}
+				else
+				{
+					cerr << "Could not open input file" << fullPathIn << "\n";
+				}
+
 				//Found mainApp?
 				if(string(TGDSMainApp) == string(filename)){
 					//unsigned long crc32 = -1;
-					FILE* TGDSLibraryFile = fopen(fullPathIn,"rb");
+					FILE* TGDSLibraryFile = fopen(filename,"rb");
 					int err = Crc32_ComputeFile(TGDSLibraryFile, (uint32_t*)&crc32mainApp);
 					fclose(TGDSLibraryFile);
 					printf("mainApp[%s] CRC32: %x\n", filename, crc32mainApp);
@@ -690,32 +709,49 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 
 	/* Write the descriptor */
 	char TGDSDescriptorBuffer[256+1];
-	sprintf(TGDSDescriptorBuffer, "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory);
-	
-	try{
-		tarball.put( (string("descriptor.txt")).c_str(), TGDSDescriptorBuffer);
-	}
-	catch(exception ex){
-		printf("descriptor.txt creating fail");
-		return -1;
-	}
+	cv_snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory);
+	ofstream ofs;
+	ofs.open("descriptor.txt", ofstream::out | std::ios::binary);
+	ofs << TGDSDescriptorBuffer;
+	ofs << endl;
+	ofs.close();
 
-	/* finalize the tar file */
-	tarball.finish();
-	/* close the file */
-	out.close();
+	zipList+=(" "+string("descriptor.txt"));
 
-	//gz zip the tarball
-	if(file_compress(fullPathOuttar, "w+b") == Z_OK){
-		rename(fullPathOuttar, (string(fullPathOuttar)+string(".gz")).c_str());
-		printf("TGDSPKG %s build OK \n", (string(fullPathOuttar)+string(".gz")).c_str());
+	strcpy(&zipArgs[vec.size()-1][0], "descriptor.txt");
+	/*
+	//Example
+		remove("remotepackage2.zip");
+
+		//todo: copy files from another path into this path, list them below, add descriptor, call zip then delete them
+		argc = 4;
+		argv[0] = "thisApp"; //unused
+		argv[1] = "remotepackage2.zip"; //.zip filename to create
+		argv[2] = "Debug/release/tgds_multiboot_payload_twl.bin"; //arg 0
+		argv[3] = "Debug/release/ToolchainGenericDS-multimediaplayer.srl"; //arg 1
+								//arg n
+		mainZIPBuild(argc, argv);
 		
-	}
-	else
-	{
-		printf("TGDSPKG %s build ERROR \n", (string(fullPathOuttar)+string(".gz")).c_str());
+	note: filepaths are relative to current working directory
+	*/
+	
+	argc = vec.size() + 3; 
+	argv[0] = "thisApp"; //unused
+	argv[1] = "-o ";						//arg n
+	argv[2] = "remotepackage.zip"; //.zip filename to create
+	
+	for(int i = 0; i < (vec.size() + 1); i++){
+		argv[3+i] = &zipArgs[i][0];
 	}
 
+	mainZIPBuild(argc, argv);
+
+	//cleanup
+	for(int i = 0; i < (vec.size() + 1); i++){
+		remove((char*)&zipArgs[i][0]);
+	}
+
+	printf("TGDSPKG %s build OK \n", "remotepackage.zip");
     return 0;
 }
 
@@ -748,8 +784,8 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	//debug end
 	
 	//Build TGDS Package
-	int argcPackage = 7;
-	char * argvPackage[7];
+	int argcPackage = MAX_ARGV_BUFFER_SIZE_TGDSUTILS;
+	char * argvPackage[MAX_ARGV_BUFFER_SIZE_TGDSUTILS];
 	char TGDSProjectName[256];
 	char baseTargetDecompressorDirectory[256];
 	char TGDSLibrarySourceDirectory[256];

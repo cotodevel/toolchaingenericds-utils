@@ -38,17 +38,6 @@ void showMenu(char * appName){
 char args[8][256];
 char *argvs[8];
 
-#ifdef __cplusplus
-extern "C"{
-#endif
-
-extern int mainZIPBuild(int argc, char *argv[]);
-
-#ifdef __cplusplus
-}
-#endif
-
-
 int main( int argc, char *argv[] ){
 	if(argc < 2){
 		showMenu(argv[0]);
@@ -79,21 +68,6 @@ int main( int argc, char *argv[] ){
 		return mainHTTPServer(argc, argv);
 	}
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "zipfiles", strlen("zipfiles")) == 0)){
-		/*
-		//Example
-		remove("remotepackage2.zip");
-
-		//todo: copy files from another path into this path, list them below, add descriptor, call zip then delete them
-		argc = 4;
-		argv[0] = "thisApp"; //unused
-		argv[1] = "remotepackage2.zip"; //.zip filename to create
-		argv[2] = "Debug/release/tgds_multiboot_payload_twl.bin"; //arg 0
-		argv[3] = "Debug/release/ToolchainGenericDS-multimediaplayer.srl"; //arg 1
-								//arg n
-		mainZIPBuild(argc, argv);
-		
-		note: filepaths are relative to current working directory
-		*/
 		orderArgs(argc, argv);
 		return mainZIPBuild(argc, argv);
 	}

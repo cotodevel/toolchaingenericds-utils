@@ -37,20 +37,24 @@ USA
 #include "main.h"
 #include "lz77.h"
 #include "posixHandleTGDS.h"
+#include "timerTGDS.h"
 #endif
-#include "../ToolchainGenericDSFS/fatfslayerTGDS.h"
-#include "../utilities.h"
 #include "lzss9.h"
 #if defined (MSDOS) || defined(WIN32)
-#include "..\ToolchainGenericDSFS\fatfslayerTGDS.h"
-#include "..\ToolchainGenericDSFS\dldiWin32.h"
+#include "../ToolchainGenericDSFS/fatfslayerTGDS.h"
+#include "../utilities.h"
 #include "TGDSTypes.h"
 #endif
 
 u8 decompBuf[256*192*2];
 
 //Format name: TVS (ToolchainGenericDS Videoplayer Stream)
-//Format Version: 1.2
+//Format Version: 1.3
+//Changelog:
+//1.3 Add timestamp and synchronize video to audio track.
+//1.2 Add LZSS compression
+//1.1 add 10 FPS support
+//1.0 First version, plays raw uncompressed videoframes
 #ifdef ARM9
 __attribute__((section(".dtcm")))
 #endif
@@ -70,7 +74,7 @@ bool TGDSVideoPlayback;
 #ifdef ARM9
 __attribute__((section(".dtcm")))
 #endif
-struct fd * videoHandleFD;
+struct fd videoHandleFD;
 
 FILE* audioHandleFD = NULL;
 #endif
@@ -127,16 +131,8 @@ int parseTGDSVideoFile(struct fd * _VideoDecoderFileHandleFD, char * audioFname)
 	TGDSVideoPlayback=false;	
 	if(strcmp(ext,".tvs") == 0){
 		struct TGDSVideoFrameContext * readTGDSVideoFrameContext = (struct TGDSVideoFrameContext *)TGDSARM9Malloc(sizeof(struct TGDSVideoFrameContext));
-		int readSize = (sizeof(struct TGDSVideoFrameContext) - 4);
-		int filesize = f_size(_VideoDecoderFileHandleFD->filPtr);
-		
 		fatfs_seekDirectStructFD(_VideoDecoderFileHandleFD, 0);
-		if( fatfs_readDirectStructFD(_VideoDecoderFileHandleFD, (u8*)readTGDSVideoFrameContext, readSize) != readSize){
-			printf("fail read");
-		}
-		else{
-			printf("read OK");
-		}
+		fatfs_readDirectStructFD(_VideoDecoderFileHandleFD, (u8*)readTGDSVideoFrameContext, sizeof(struct TGDSVideoFrameContext) - 4);
 		TGDSVideoFrameContextReference = (struct TGDSVideoFrameContext*)&TGDSVideoFrameContextDefinition;
 		TGDSVideoFrameContextReference->framesPerSecond = readTGDSVideoFrameContext->framesPerSecond;
 		TGDSVideoFrameContextReference->videoFramesTotalCount = readTGDSVideoFrameContext->videoFramesTotalCount;
@@ -151,13 +147,6 @@ int parseTGDSVideoFile(struct fd * _VideoDecoderFileHandleFD, char * audioFname)
 		frameInterval = 1;	//(vblankMaxFrame / TGDSVideoFrameContextReference->framesPerSecond); //tick 60/4 times = 15 FPS. //////////2; 
 		TGDSARM9Free(readTGDSVideoFrameContext);
 		
-		#ifdef ARM9
-		//ARM7 ADPCM playback 
-		char * filen = FS_getFileName(audioFname);
-		strcat(filen, ".ima");
-		u32 returnStatus = setupDirectVideoFrameRender(videoHandleFD, (char*)&filen[2]);
-		#endif
-		
 		return TGDSVideoFrameContextReference->videoFramesTotalCount;
 	}
 	return -1;
@@ -171,7 +160,7 @@ u32 getVideoFrameOffsetFromIndexInFileHandle(int videoFrameIndexFromFileHandle){
 	u32 frameOffsetCollectionInFileHandle = ((int)(sizeof(struct TGDSVideoFrameContext) - 4) + (videoFrameIndexFromFileHandle*4));
 	UINT nbytes_read;
 	u32 offsetInFileRead = 0;
-	if( (f_lseek(&videoHandleFD->fil, frameOffsetCollectionInFileHandle) == FR_OK) && (f_read(&videoHandleFD->fil, &offsetInFileRead, sizeof(u32), &nbytes_read) == FR_OK)){
+	if( (f_lseek(&videoHandleFD.fil, frameOffsetCollectionInFileHandle) == FR_OK) && (f_read(&videoHandleFD.fil, &offsetInFileRead, sizeof(u32), &nbytes_read) == FR_OK)){
 		return offsetInFileRead;
 	}
 	return -1;
@@ -195,30 +184,36 @@ int TGDSVideoRender(){
 	#ifdef ARM9
 	//Any frames loaded? Handle them
 	if( (vblankCount != 1) && ((vblankCount % (frameInterval) ) == 0)){
-		//render one frame proportional to vertical blank interrupts
+		//render one frame proportional to timestamp sync'd to actual TGDS videoframe
 		if(TGDSVideoPlayback == true){
 			UINT nbytes_read;
 			int frameDescSize = sizeof(struct videoFrame);
 			f_lseek(&videoHandleFD.fil, nextVideoFrameOffset);
 			f_read(&videoHandleFD.fil, (u8*)decodedBuf, nextVideoFrameFileSize + frameDescSize, &nbytes_read);
 			struct videoFrame * frameRendered = (struct videoFrame *)decodedBuf;
-			nextVideoFrameOffset = frameRendered->nextVideoFrameOffsetInFile;
-			nextVideoFrameFileSize = frameRendered->nextVideoFrameFileSize;
-			int decompSize = lzssDecompress((u8*)decodedBuf + frameDescSize, (u8*)decompBufUncached);
-			DMA0_SRC = (uint32)(decompBufUncached);
-			DMA0_DEST = (uint32)mainBufferDraw;
-			DMA0_CR = DMAENABLED | DMAINCR_SRC | DMAINCR_DEST | DMA32BIT | (decompSize>>2);
 			
-			if(frameCount < TGDSVideoFrameContextReference->videoFramesTotalCount){
-				frameCount++;
-			}
-			else{
-				DMA0_CR = 0;
-				dmaFillWord(0, 0, (uint32)mainBufferDraw, (uint32)256*192*2);	//clean render buffer
-				vblankCount = frameCount = 1;
-				nextVideoFrameOffset = TGDSVideoFrameContextReference->videoFrameStartFileOffset;
-				nextVideoFrameFileSize = TGDSVideoFrameContextReference->videoFrameStartFileSize;
-				TGDSVideoPlayback = false;
+			if(frameRendered->elapsedTimeStampInMilliseconds < (getTimerCounter()+300)  ){ //0.3s seek time ahead to sync better
+				nextVideoFrameOffset = frameRendered->nextVideoFrameOffsetInFile;
+				nextVideoFrameFileSize = frameRendered->nextVideoFrameFileSize;
+				int decompSize = lzssDecompress((u8*)decodedBuf + frameDescSize, (u8*)decompBufUncached);
+				DMA0_SRC = (uint32)(decompBufUncached);
+				DMA0_DEST = (uint32)mainBufferDraw;
+				DMA0_CR = DMAENABLED | DMAINCR_SRC | DMAINCR_DEST | DMA32BIT | (decompSize>>2);
+				
+				if(frameCount < TGDSVideoFrameContextReference->videoFramesTotalCount){
+					frameCount++;
+				}
+				else{
+					DMA0_CR = 0;
+					dmaFillWord(0, 0, (uint32)mainBufferDraw, (uint32)256*192*2);	//clean render buffer
+					vblankCount = frameCount = 1;
+					nextVideoFrameOffset = TGDSVideoFrameContextReference->videoFrameStartFileOffset;
+					nextVideoFrameFileSize = TGDSVideoFrameContextReference->videoFrameStartFileSize;
+					TGDSVideoPlayback = false;
+					
+					//Exit inmediately to TGDS-LM Caller on videoplayback end
+					TGDSProjectReturnToCaller(callerNDSBinary);
+				}
 			}
 		}
 	}

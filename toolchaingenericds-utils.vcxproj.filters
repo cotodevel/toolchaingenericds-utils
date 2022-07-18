@@ -161,9 +161,6 @@
     <ClCompile Include="ToolchainGenericDSFS\fatfs\source\ffsystem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TGDSVideoConverter\TGDSVideo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TGDSVideoConverter\bmp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -252,6 +249,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="zlib-1.2.11\iowin32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TGDSVideoConverter\TGDSVideo.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

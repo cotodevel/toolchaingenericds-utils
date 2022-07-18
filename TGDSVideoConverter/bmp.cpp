@@ -171,7 +171,7 @@ unsigned char SaveBitmap24File(char * name,uint16_t width,uint16_t height,unsign
     return 1;
 }
 
-int generateTGDSVideoformatFromBMPDir(const std::vector<std::string> BMPFrames, std::string outDir, std::string imaTrack, std::string targetFilename){
+int generateTGDSVideoformatFromBMPDir(const std::vector<std::string> BMPFrames, std::string outDir, std::string imaTrack, std::string targetFilename, std::vector<struct videoFrameTimeStamp> ts_lst){
 	struct TGDSVideoFrameContext TGDSVideoFrameContextOut;
 	int bmpFramesDone=0;
 	int lastVideoFrameOffset=-1;
@@ -281,6 +281,15 @@ int generateTGDSVideoformatFromBMPDir(const std::vector<std::string> BMPFrames, 
 				processedVideoFrame.rawVideoFrame = (u32*)(ftell(out) - compressedFrameSize); //VideoFrame saved physically into file, then get offset, save it here.
 				processedVideoFrame.lastVideoFrameOffsetInFile = lastVideoFrameOffset;
 				processedVideoFrame.lastVideoFrameFileSize = lastVideoFrameSize;
+				
+				videoFrameTimeStamp tsVideoFrame = ts_lst.at(bmpFramesDone);
+				if(tsVideoFrame.frameIndex == bmpFramesDone){
+					processedVideoFrame.elapsedTimeStampInMilliseconds = tsVideoFrame.extractedElapsedTimeStampInMilliseconds;
+				}
+				else{
+					printf("//////////////////////////////////////Timestamp corrupted. Aborting//////////////////////////////////////");
+					return -1;
+				}				
 				fseek(out, (int)frameCollection[bmpFramesDone], SEEK_SET);
 				if(fwrite((u8*)&processedVideoFrame, 1, sizeof(struct videoFrame), out) == sizeof(struct videoFrame)){
 					free((char*)compressedBufferGenerated);	

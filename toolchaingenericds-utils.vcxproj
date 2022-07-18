@@ -130,7 +130,7 @@
     <ClCompile Include="tarball.cpp" />
     <ClCompile Include="TGDSVideoConverter\bmp.cpp" />
     <ClCompile Include="TGDSVideoConverter\lzss9.c" />
-    <ClCompile Include="TGDSVideoConverter\TGDSVideo.cpp" />
+    <ClCompile Include="TGDSVideoConverter\TGDSVideo.c" />
     <ClCompile Include="toolchaingenericds-utils.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

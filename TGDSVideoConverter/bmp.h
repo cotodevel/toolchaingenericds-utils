@@ -88,7 +88,7 @@ extern unsigned char SaveBitmap24File(char * name,uint16_t width,uint16_t height
 
 #ifdef __cplusplus
 
-extern int generateTGDSVideoformatFromBMPDir(const std::vector<std::string> BMPFrames, std::string outDir, std::string imaTrack, std::string targetFilename);
+extern int generateTGDSVideoformatFromBMPDir(const std::vector<std::string> BMPFrames, std::string outDir, std::string imaTrack, std::string targetFilename, std::vector<struct videoFrameTimeStamp> ts_lst);
 extern uint8_t bmpBuffer[MAX_BMP_FILESIZE];
 extern uint16_t color_24_to_16_s(color_rgb_s color);
 

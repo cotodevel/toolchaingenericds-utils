@@ -91,7 +91,6 @@ This way, TWL binaries are loaded natively, in TWL mode.
 .TVS file format (ToolchainGenericDS VideoStream)
 Implementation: ToolchainGenericDS-Videoplayer (client) / ToolchainGenericDS-Helper/misc/vs2012TGDS-FS (encoder)
 
-- Video: A sequence of LZSS (WRAM) compressed, compatible with NDS/NDSi Bios decompression functions's 15bit RGB Bitmap videoFrames, running at fixated FramesPerSecond
+- Video: A sequence of LZSS (WRAM) compressed, compatible with NDS/NDSi Bios decompression functions's 15bit RGB Bitmap videoFrames, running at fixated 10 FramesPerSecond 
 - Audio: Intel IMA-ADPCM
-
-.TVS runs from a diskcache direct DLDI API for speed and offers (for now) up to 15FPS videoplayback on NintendoDS. WIP
+- Also both Video + Audio tracks are synchronized to timestamps, so if the SD card speed can keep up the framerate, you'll never get an out of sync video again ;-)

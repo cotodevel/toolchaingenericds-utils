@@ -10,6 +10,7 @@
 #include <math.h>
 #include "zlib-1.2.11/zlib.h"
 #include "zlib-1.2.11/ioapi.h"
+#include "TGDSVideoConverter/TGDSVideo.h"
 
 #if !defined(WIN32)
 #include <stdbool.h>
@@ -62,6 +63,8 @@ extern char * print_ip(uint32 ip, char * outBuf);
 #endif
 
 #ifdef __cplusplus
+extern vector<struct videoFrameTimeStamp> parseTimeStampFromFFMPEGOutput(const string &filename);
+
 extern "C"{
 #endif
 extern int untgzmain(int argc,char **argv);

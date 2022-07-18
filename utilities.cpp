@@ -350,13 +350,14 @@ int convertMP4toTVS(int argc, char *argv[] ){
 			std::string audioDeleted = string(*itAudio);
 			int res2 = std::remove(audioDeleted.c_str());
 		}
-		
-		std::string cmd = string("ffmpeg -async 20 -i tvsIn/"+ file+" -vf scale=256:192,fps=fps=10,showinfo -pix_fmt rgb24 -y bmpFrames/yo%03d.bmp -f wav -acodec adpcm_ima_wav -ar 22050 bmpFrames/audio.ima > output.txt 2>&1");
+		std::string outputFile = "bmpFrames/output.txt";
+		std::remove(outputFile.c_str());
 		//FFmpeg convert
+		std::string cmd = string("ffmpeg -async 20 -i tvsIn/"+ file+" -vf scale=256:192,fps=fps=10,showinfo -pix_fmt rgb24 -y bmpFrames/yo%03d.bmp -f wav -acodec adpcm_ima_wav -ar 22050 bmpFrames/audio.ima > bmpFrames/output.txt 2>&1");
 		system(cmd.c_str());
 
 		////////////////////////////////////////////////////////TVS start
-
+		std::vector<struct videoFrameTimeStamp> ts_list = parseTimeStampFromFFMPEGOutput(outputFile);
 		char cwdPathOut[256];
 		getCWDWin(cwdPathOut, "\\tvsout\\");
 	
@@ -368,7 +369,7 @@ int convertMP4toTVS(int argc, char *argv[] ){
 			printf("audio track (IMA ADPCM) not found");
 			return -1;
 		}
-		int ret = generateTGDSVideoformatFromBMPDir(BMPframesFound, std::string(cwdPathOut), audioTrackFound.at(0), getFileNameNoExtension(file));
+		int ret = generateTGDSVideoformatFromBMPDir(BMPframesFound, std::string(cwdPathOut), audioTrackFound.at(0), getFileNameNoExtension(file), ts_list);
 		printf("Processed %d BMP frames\n", ret);
 	}
 
@@ -835,4 +836,46 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	mainHTTPServer(argcPackage, argvPackage);
 	printf("TGDSRemoteBooter End\n");
 	return 0;
+}
+
+
+#include <fstream>
+#include <iostream>
+
+string extractInformation(size_t p, string key, const string& theEntireString)
+{
+  auto p1 = theEntireString.find(key);
+  if (string::npos != p1)
+    p1 += key.size();
+  auto p2 = theEntireString.find_first_of('p',p1);
+  if (string::npos != p2)
+    return theEntireString.substr(p1,p2-p1);
+  return "";
+}
+
+std::vector<struct videoFrameTimeStamp> parseTimeStampFromFFMPEGOutput(const std::string &filename){
+	std::vector<struct videoFrameTimeStamp> ts_list;
+	std::ifstream file(filename);
+	int videoFrameIndex = 0;
+	if (file.is_open()) {
+		std::string line;
+			while (std::getline(file, line)) {
+				string res = extractInformation(0,"pts_time:", line);
+				if(res != ""){
+					videoFrameTimeStamp tsFrame;
+					tsFrame.frameIndex = videoFrameIndex;
+					res.erase(res.find_last_not_of(" \n\r\t")+1); //trim
+					double val = atof(res.c_str());
+					int ms = (((double)val)*1000);
+					tsFrame.extractedElapsedTimeStampInMilliseconds = ms;
+					ts_list.push_back(tsFrame);
+					videoFrameIndex++;
+				}
+			}
+		file.close();
+	}
+	else{
+		printf("parseTimeStampFromFFMPEGOutput():failure opening: %s\n", filename.c_str());
+	}
+	return ts_list;
 }

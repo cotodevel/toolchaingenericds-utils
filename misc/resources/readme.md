@@ -85,9 +85,10 @@ NOT supported by NintendoDS hardware, but can be added in software, albeit it's 
 
 
 
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[[[[[[[[Steps to perform standard OpenGL 1.0 rendering on NintendoDS GX pipeline using Textures + Normals + 1 light source + materials on standard vertices ]]]]]]]]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-[[[[[[[[[[[[[[[[[Steps to perform standard OpenGL 1.0 rendering on NintendoDS GX pipeline using Textures + Normals + 1 light source + materials]]]]]]]]]]]]]]]]]
 
 glBindTexture( 0, textureArrayNDS[0]); //bind the texture to-be used
 
@@ -120,7 +121,42 @@ glTexCoord2f(1.0f, 0.0f);
 //Finally 3-Vertices (a Triangle in the 3D ModelViewProjection space)
 glVertex3f(-1.0f, -1.0f, -1.0f);
 
+Example: https://bitbucket.org/Coto88/snakegl/src
 
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[[[[[[[[Steps to perform standard OpenGL 1.0 rendering on NintendoDS GX pipeline using Textures + Normals + 1 light source + materials on Display Lists ]]]]]]]]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+glBindTexture( 0, textureArrayNDS[0]); //bind the texture to-be used
+
+//Reset The View towards the Model and *project* translation on current matrix
+glLoadIdentity();
+glTranslatef(1.4f+(float(xloop)*2.8f)-(float(yloop)*1.4f),((6.0f-float(yloop))*2.4f)-7.3f,-20.0f + camMov);
+
+//Rotation because NintendoDS seems to emit 45� rotated polygons, this set's them back to defaults (as a normal OpenGL driver would do)
+glRotatef(45.0f-(2.0f*yloop)+xrot,1.0f,0.0f,0.0f);
+glRotatef(45.0f+yrot,0.0f,1.0f,0.0f);
+
+//Enable Light0 + Material Parameters
+#define GX_LIGHT0 (1 << 0)
+glPolyFmt(GX_LIGHT0 | POLY_ALPHA(31) | POLY_CULL_NONE);
+glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
+glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
+glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+glMaterialf(GL_AMBIENT_AND_DIFFUSE, RGB15(31,31,31));	
+
+//Open GL 1.1 Display List 
+glColor3fv(boxcol[yloop-1]);
+glCallList(box);
+glColor3fv(topcol[yloop-1]);
+glCallList(top);
 
 Example: https://bitbucket.org/Coto88/toolchaingenericds-unittest/src/master/
 

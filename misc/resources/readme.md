@@ -30,48 +30,6 @@ Text file: descriptor.txt:
 Todo:
 add new TGDS project rule:
 build TGDSPackage. (C++) App does the above right after the binary is built.
--
-
-
-Upgrade VideoGL Nintendo DS  OpenGL (1.0 -> 1.1):
-
-21.070 How do texture objects work?
-
-Texture objects store texture maps and their associated texture parameter state. They allow switching between textures with a single call to glBindTexture().
-
-Texture objects were introduced in OpenGL 1.1. Prior to that, an application changed textures by calling glTexImage*(), a rather expensive operation. Some OpenGL 1.0 implementations simulated texture object functionality for texture maps that were stored in display lists.
-
-Like display lists, a texture object has a GLuint identifier (the textureName parameter to glBindTexture()). OpenGL supplies your application with texture object names when your application calls glGenTextures(). Also like display lists, texture objects can be shared across rendering contexts.
-
-Unlike display lists, texture objects are mutable. When a texture object is bound, changes to texture object state are stored in the texture object, including changes to the texture map itself.
-
-The following functions affect and store state in texture objects: glTexImage*(), glTexSubImage*(), glCopyTexImage*(), glCopyTexSubImage*(), glTexParameter*(), and glPrioritizeTextures(). 
-
-Here is a summary of typical texture object usage:
-
-Get a textureName from glGenTextures(). You'll want one name for each of the texture objects you plan to use.
-Initially bind a texture object with glBindTexture(). Specify the texture map, and any texture parameters. Repeat this for all texture objects your application uses.
-Before rendering texture mapped geometry, call glBindTexture() with the desired textureName. OpenGL will use the texture map and texture parameter state stored in that object for rendering.
-
-
-Workflow:
-1)Model export phase: 
-Blender model exporter exports 2 objects:
-
-1.1) NDSCallLists
-1.2) NDSCallList descriptor which defines:
-
-How many textures: n
-texture index (n):
-texture size
-
-2)NDSProgram: NDSLoad (and not NDS CallLists rendering):
-2.1) Script to read all textures from a polygon
-2.2) Read texture coordinates, each index represent a position in texture memory, and generate a texture object context.
-
-3)NDSProgram: Rendering
-3.1) Develop render-to-texture example
-3.2) Add other upcoming texture object features...
 
 -
 
@@ -94,3 +52,76 @@ Implementation: ToolchainGenericDS-Videoplayer (client) / ToolchainGenericDS-Hel
 - Video: A sequence of LZSS (WRAM) compressed, compatible with NDS/NDSi Bios decompression functions's 15bit RGB Bitmap videoFrames, running at fixated 10 FramesPerSecond 
 - Audio: Intel IMA-ADPCM
 - Also both Video + Audio tracks are synchronized to timestamps, so if the SD card speed can keep up the framerate, you'll never get an out of sync video again ;-)
+
+-
+
+Nintendo DS GX Notes:
+
+21.070 How do texture objects work?
+Texture objects store texture maps and their associated texture parameter state. They allow switching between textures with a single call to glBindTexture().
+Texture objects were introduced in OpenGL 1.1. Prior to that, an application changed textures by calling glTexImage*(), a rather expensive operation. Some OpenGL 1.0 implementations simulated texture object functionality for texture maps that were stored in display lists.
+Like display lists, a texture object has a GLuint identifier (the textureName parameter to glBindTexture()). OpenGL supplies your application with texture object names when your application calls glGenTextures(). Also like display lists, texture objects can be shared across rendering contexts.
+Unlike display lists, texture objects are mutable. When a texture object is bound, changes to texture object state are stored in the texture object, including changes to the texture map itself.
+The following functions affect and store state in texture objects: glTexImage*(), glTexSubImage*(), glCopyTexImage*(), glCopyTexSubImage*(), glTexParameter*(), and glPrioritizeTextures(). 
+
+
+Typical OpenGL drawing:
+Get a textureName from glGenTextures(). You'll want one name for each of the texture objects you plan to use.
+Initially bind a texture object with glBindTexture(). Specify the texture map, and any texture parameters. Repeat this for all texture objects your application uses.
+Before rendering texture mapped geometry, call glBindTexture() with the desired textureName. OpenGL will use the texture map and texture parameter state stored in that object for rendering.
+
+
+NOTE: 
+Display Lists:
+GX Display Lists Port can only receive blocks of memory through DMA from 4MB EWRAM, which is an extension of the Display Lists OpenGL 1.0 standard. 
+As it is, this implementation require transactions between Client(RAM) and Server(VRAM) sided rendering.
+
+Texture objects: 
+NOT supported by NintendoDS hardware, but can be added in software, albeit it's slower. Because these define mutable Texture, Vertices and Color arrays directly running on the Server(VRAM)
+
+
+
+
+
+
+
+
+
+[[[[[[[[[[[[[[[[[Steps to perform standard OpenGL 1.0 rendering on NintendoDS GX pipeline using Textures + Normals + 1 light source + materials]]]]]]]]]]]]]]]]]
+
+glBindTexture( 0, textureArrayNDS[0]); //bind the texture to-be used
+
+//Reset The View towards the Model and *project* translation on current matrix
+glLoadIdentity();
+glTranslatef(1.4f+(float(xloop)*2.8f)-(float(yloop)*1.4f),((6.0f-float(yloop))*2.4f)-7.3f,-20.0f + camMov);
+
+//Rotation because NintendoDS seems to emit 45° rotated polygons, this set's them back to defaults (as a normal OpenGL driver would do)
+glRotatef(45.0f-(2.0f*yloop)+xrot,1.0f,0.0f,0.0f);
+glRotatef(45.0f+yrot,0.0f,1.0f,0.0f);
+
+//Enable Light0 + Material Parameters
+#define GX_LIGHT0 (1 << 0)
+glPolyFmt(GX_LIGHT0 | POLY_ALPHA(31) | POLY_CULL_NONE);
+glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
+glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
+glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+glMaterialf(GL_AMBIENT_AND_DIFFUSE, RGB15(31,31,31));	
+
+//Base Color which blends into final texture color
+glColor3fv(boxcol[yloop-1]);
+
+//Normals (base surface vector coordinates to cause light emission towards current Light Direction Vector using current Light Color + Texture Color + Base color)
+glNormal3f( 1.0f, 1.0f,-1.0f);
+
+//2D Texture Coordinates
+glTexCoord2f(1.0f, 0.0f); 
+
+//Finally 3-Vertices (a Triangle in the 3D ModelViewProjection space)
+glVertex3f(-1.0f, -1.0f, -1.0f);
+
+
+
+Example: https://bitbucket.org/Coto88/toolchaingenericds-unittest/src/master/
+
+![ToolchainGenericDS](https://bytebucket.org/Coto88/ndsdisplaylistutils/raw/02aca38abbf1fec3cd145c7f43950920ff99f4cb/img/ndsdisplaylistutils_nds.png)

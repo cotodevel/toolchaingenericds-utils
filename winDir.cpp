@@ -4,9 +4,9 @@
 #pragma warning(disable:4996)
 
 #ifdef _WIN32
-#include <windows.h> // WinApi header
-#include <tchar.h> 
-#include <strsafe.h>
+//#include <windows.h> // WinApi header
+//#include <tchar.h> 
+//#include <strsafe.h>
 #endif
 
 #include <iostream>
@@ -25,11 +25,8 @@
 #include <assert.h>
 #ifndef _MSC_VER
 #include <unistd.h>
-#endif
-#ifndef _MSC_VER
 #include <dirent.h>
 #endif
-#include <vector>
 #include <limits.h>
 using namespace std; // std::cout, std::cin
 
@@ -129,8 +126,27 @@ std::vector<dirItem> list_directoryByType(const std::string &directory){
     if ((dir = opendir (directory.c_str())) != NULL) { //""c:\\src\\""
       /* print all the files and directories within directory */
       while ((ent = readdir (dir)) != NULL) {
+        
         //printf ("%s\n", ent->d_name);
-        dir_list.push_back(std::string(ent->d_name));
+        int objType = 0;
+ 	std::string fileDirName;
+ 	//dir
+ 	if ( (ent->d_type & DT_DIR) == DT_DIR ){
+ 		objType = FT_DIR;
+ 		if(std::string(ent->d_name) == ".."){
+			fileDirName = std::string(ent->d_name);
+		}
+		else{
+			fileDirName = std::string("/") + std::string(ent->d_name);
+		}
+        } 
+        else{
+        	objType = FT_FILE;
+        	fileDirName = std::string(ent->d_name);
+        } 
+        dirItem item(fileDirName, objType);
+	dir_list.push_back(item);
+	
       }
       closedir (dir);
     } else {

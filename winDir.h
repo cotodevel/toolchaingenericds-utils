@@ -33,21 +33,9 @@ enum COLOR
      YELLOW_FADE_BACKGROUND=YELLOW_FADE_TEXT<<4, WHITE_FADE_BACKGROUND=WHITE_FADE_TEXT<<4
  };
 
-class dirItem {
-public: 
-	std::string path;
-	int type;
-	dirItem(std::string inPath, int inType){
-		path = inPath;
-		type = inType;
-	}
-};
-
 #include <tchar.h> 
 #include <stdio.h>
 #include <strsafe.h>
-
-#include <stdio.h>
 #include <string.h>
 #include <assert.h>
 
@@ -60,6 +48,15 @@ using namespace std; // std::cout, std::cin
 #include <vector>
 #include <string>
 
+class dirItem {
+public: 
+	std::string path;
+	int type;
+	dirItem(std::string inPath, int inType){
+		path = inPath;
+		type = inType;
+	}
+};
 
 #endif
 #endif

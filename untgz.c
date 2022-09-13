@@ -13,11 +13,16 @@
 //#include <errno.h>
 #include "zlib-1.2.11/zlib.h"
 #include "utilities.h"
+#ifdef WIN32
 #include <direct.h>
+#include <io.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <io.h>
 
+#if !defined(WIN32)
+#include <errno.h>
+#endif
 
 //disable _CRT_SECURE_NO_WARNINGS message to build this in VC++
 #pragma warning(disable:4996)
@@ -133,7 +138,10 @@ int tar                 (gzFile, int, int, int, char **);
 void help               (int);
 int main                (int, char **);
 
+extern char *prog;
+#ifdef WIN32
 char *prog;
+#endif
 
 const char *TGZsuffix[] = { "\0", ".tar", ".tar.gz", ".taz", ".tgz", NULL };
 
@@ -627,11 +635,12 @@ void help(int exitval)
          "       untgz -h                  display this help\n");
 }
 
+#ifdef WIN32
 void error(const char *msg){
   printf("%s: %s\n", prog, msg);
   while(1==1){}
 }
-
+#endif
 
 /* ============================================================ */
 

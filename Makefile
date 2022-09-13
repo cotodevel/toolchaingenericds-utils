@@ -1,5 +1,5 @@
 TARGET = toolchaingenericds-utils
-LIBS = -lm	-lz
+LIBS = -lm	-lzcustom
 CC = gcc
 CFLAGS = -g -Wall
 
@@ -8,17 +8,17 @@ CFLAGS = -g -Wall
 default: installzlib	$(TARGET)
 all: default
 
-SRCS =  ./	ToolchainGenericDSFS/ TGDSVideoConverter/
+SRCS =  ./	ToolchainGenericDSFS/ TGDSVideoConverter/	http/
 OBJECTS = $(foreach dir,$(SRCS), $(patsubst %.c, %.o, $(wildcard $(dir)*.c)  ) )	$(foreach dir,$(SRCS), $(patsubst %.cpp, %.o, $(wildcard $(dir)*.cpp)  ) )
 
-HDRS = ./	/ToolchainGenericDSFS /TGDSVideoConverter
+HDRS = ./	/ToolchainGenericDSFS /TGDSVideoConverter	http/
 HEADERS = $(foreach dirres,$(HDRS),-I "$(dirres)" )
 
 installzlib:
 	-@echo 'setup zlib'
 	-@cd	$(CURDIR)/zlib-1.2.11 &&	./configure --prefix=/usr/local/zlib
 	-@sudo $(MAKE)	-C	$(CURDIR)/zlib-1.2.11
-	-@sudo mv	$(CURDIR)/zlib-1.2.11/libz.a	$(CURDIR)
+	-@sudo mv	$(CURDIR)/zlib-1.2.11/libzcustom.a	$(CURDIR)
 	
 
 %.o: %.cpp 
@@ -30,13 +30,13 @@ installzlib:
 .PRECIOUS: $(TARGET) $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	-@g++	$(OBJECTS)	-Wall	$(LIBS)	-o	$@
+	-@g++	$(OBJECTS)	-Wall	-L	$(CURDIR)	$(LIBS)	-o	$@
 	-@sudo mv	$(CURDIR)/$(TARGET)	$(GCC_BUILD_ENV)$(GCC_BIN_PATH)$(TARGET)
 	-@echo '$(TARGET) build OK';
 
 clean:
-	-rm -f *.o $(OBJECTS) $(TARGET) libz.a
+	-rm -f *.o $(OBJECTS) $(TARGET) libzcustom.a
 	-$(MAKE)	clean	-C	zlib-1.2.11/
 		
 debug:
-	-@echo '$(HEADERS) ';
+	-@echo '$(OBJECTS) ';

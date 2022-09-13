@@ -11,7 +11,7 @@
 #pragma warning(disable:4996)
 
 #include <stdio.h>
-
+#include "../TGDSVideoConverter/TGDSVideo.h"
 #include "zutil.h"
 
 #ifdef WIN32

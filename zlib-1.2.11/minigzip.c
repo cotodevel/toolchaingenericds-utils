@@ -267,7 +267,7 @@ void file_uncompress(char  *file)
     unlink(infile);
 }
 
-
+#if !defined(WIN32) && !defined(ARM9)
 /* ===========================================================================
  * Usage:  minigzip [-d] [-f] [-h] [-r] [-1 to -9] [files...]
  *   -d : decompress
@@ -276,6 +276,12 @@ void file_uncompress(char  *file)
  *   -r : compress with Z_RLE
  *   -1 to -9 : compression level
  */
+
+#if !defined(_MSC_VER) && !defined(ARM9)
+int main(int argc, char *argv[]){
+	return mainminigzip(argc, argv);
+}
+#endif
 
 int mainminigzip(int argc,
     char *argv[])
@@ -330,3 +336,4 @@ int mainminigzip(int argc,
     }
     return 0;
 }
+#endif

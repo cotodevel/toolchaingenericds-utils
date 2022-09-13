@@ -29,7 +29,7 @@ USA
 #ifndef __TGDSVideo_h__
 #define __TGDSVideo_h__
 
-#if defined (MSDOS) || defined(WIN32)
+#if defined (MSDOS) || defined(WIN32) || !defined(ARM9)
 #define TGDSARM9Malloc malloc
 #define TGDSARM9Calloc calloc
 #define TGDSARM9Realloc realloc

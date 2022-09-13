@@ -24,11 +24,11 @@ CFLAGS=-O
 #CFLAGS=-O3 -Wall -Wwrite-strings -Wpointer-arith -Wconversion \
 #           -Wstrict-prototypes -Wmissing-prototypes
 
-LDFLAGS=libz.a
+LDFLAGS=libzcustom.a
 LDSHARED=$(CC)
 CPP=$(CC) -E
 
-LIBS=libz.a
+LIBS=$(LDFLAGS)
 SHAREDLIB=libz.so
 SHAREDLIBV=libz.so.1.2.3
 SHAREDLIBM=libz.so.1
@@ -47,7 +47,7 @@ mandir = ${prefix}/share/man
 man3dir = ${mandir}/man3
 
 OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
-       zutil.o inflate.o infback.o inftrees.o inffast.o
+       zutil.o inflate.o infback.o inftrees.o ioapi.o zip.o minizip.o inffast.o
 
 OBJA =
 # to use the asm code: make OBJA=match.o
@@ -67,7 +67,7 @@ test: all
 	  echo '		*** zlib test FAILED ***'; \
 	fi
 
-libz.a: $(OBJS) $(OBJA)
+$(LDFLAGS): $(OBJS) $(OBJA)
 	$(AR) $@ $(OBJS) $(OBJA)
 	-@ ($(RANLIB) $@ || true) >/dev/null 2>&1
 
@@ -98,7 +98,7 @@ install: $(LIBS)
 	chmod 644 $(includedir)/zlib.h $(includedir)/zconf.h
 	cp $(LIBS) $(libdir)
 	cd $(libdir); chmod 755 $(LIBS)
-	-@(cd $(libdir); $(RANLIB) libz.a || true) >/dev/null 2>&1
+	-@(cd $(libdir); $(RANLIB) $(LDFLAGS) || true) >/dev/null 2>&1
 	cd $(libdir); if test -f $(SHAREDLIBV); then \
 	  rm -f $(SHAREDLIB) $(SHAREDLIBM); \
 	  ln -s $(SHAREDLIBV) $(SHAREDLIB); \
@@ -112,7 +112,7 @@ install: $(LIBS)
 
 uninstall:
 	cd $(includedir); \
-	cd $(libdir); rm -f libz.a; \
+	cd $(libdir); rm -f $(LDFLAGS); \
 	if test -f $(SHAREDLIBV); then \
 	  rm -f $(SHAREDLIBV) $(SHAREDLIB) $(SHAREDLIBM); \
 	fi
@@ -152,3 +152,5 @@ minigzip.o: zlib.h zconf.h
 trees.o: deflate.h zutil.h zlib.h zconf.h trees.h
 uncompr.o: zlib.h zconf.h
 zutil.o: zutil.h zlib.h zconf.h
+ioapi.o: zutil.h zlib.h zconf.h
+zip.o: zutil.h zlib.h zconf.h

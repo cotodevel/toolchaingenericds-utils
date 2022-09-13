@@ -24,9 +24,9 @@ enum response_types { RQ_UNDEF,GET,POST,PUT } ;
 extern const char *DEFAULT_ERROR_404;
 
 extern char *get_header(RESPONSE *);
-extern REQUEST *GetRequest(SOCKET);
+extern REQUEST *GetRequest(int sock);
+extern int SendResponse(int sock, RESPONSE *response, bool exitAfterSentSingleFile);
 extern RESPONSE *GetResponse(REQUEST *);
-extern int SendResponse(SOCKET, RESPONSE *, bool exitAfterSentSingleFile);
 extern void error_live(const char *);
 extern void error_die(const char *);
 extern int mainHTTPServer(int argc, char **argv);

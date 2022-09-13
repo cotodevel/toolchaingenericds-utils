@@ -1,19 +1,17 @@
-#include <winsock2.h>
-#include <stdio.h>
-#include "server.h"
-#pragma comment(lib,"ws2_32.lib")
+#if defined(_MSC_VER)
+#include <windows.h>
 #include <atlstr.h> 
-
 //disable _CRT_SECURE_NO_WARNINGS message to build this in VC++
 #pragma warning(disable:4996)
 #pragma warning(disable:4703)
+#endif
 
-BOOL FilExists(char * szPath)
-{
-  
-	DWORD dwAttrib = GetFileAttributes(CA2CT(szPath));
+#include <stdio.h>
+#include "server.h"
+#include "../utilities.h"
 
-  return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+bool FilExists(char * szPath){
+	return existFilePosix(szPath);
 }
 
 char *get_content_type(char *name)

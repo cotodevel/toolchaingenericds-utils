@@ -1,12 +1,29 @@
+#if defined(_MSC_VER)
 #include <winsock2.h>
-#include <stdio.h>
-#include "server.h"
-
 #pragma comment(lib,"ws2_32.lib")
-
 //disable _CRT_SECURE_NO_WARNINGS message to build this in VC++
 #pragma warning(disable:4996)
 #pragma warning(disable:4703)
+#endif
+
+#include <stdio.h>
+#include <string.h>
+#include "server.h"
+#include <stdlib.h>
+
+//network
+#if !defined(WIN32)
+#include <unistd.h> //malloc
+#include <stdbool.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h> /* superset of previous */
+#include <netdb.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#endif
 
 int get_request_type(char *buf)
 {
@@ -35,7 +52,7 @@ char *get_request_value(char *buf)
     return strdup(retval);
 }
 
-REQUEST *GetRequest(SOCKET sock)
+REQUEST *GetRequest(int sock)
 {
     REQUEST *request;
     int msg_len;

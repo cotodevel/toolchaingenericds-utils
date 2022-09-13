@@ -9,6 +9,8 @@
 #pragma warning(disable:4996)
 
 #include <stdio.h>
+#include "../TGDSVideoConverter/TGDSVideo.h"
+
 #include "zlib.h"
 
 #ifdef STDC

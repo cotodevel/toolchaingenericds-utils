@@ -3,10 +3,6 @@
 
 #include <stdio.h>
 #include <stdint.h>
-#define TGDSARM9Malloc malloc
-#define TGDSARM9Calloc calloc
-#define TGDSARM9Realloc realloc
-#define TGDSARM9Free free
 
 typedef unsigned char u8;
 typedef unsigned short u16;

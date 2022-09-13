@@ -1,13 +1,32 @@
+#if defined(_MSC_VER)
 #include <winsock2.h>
-#include <stdio.h>
-#include "server.h"
-//#include <unistd.h>
-#include "..\winDir.h"
 #pragma comment(lib,"ws2_32.lib")
-
 //disable _CRT_SECURE_NO_WARNINGS message to build this in VC++
 #pragma warning(disable:4996)
 #pragma warning(disable:4703)
+#endif
+
+
+#include <stdio.h>
+#include <string.h>
+#include "server.h"
+#include <stdlib.h>
+
+//network
+#if !defined(WIN32)
+#include <stdbool.h>
+#include <unistd.h> //malloc
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h> /* superset of previous */
+#include <netdb.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
+#endif
+
+#include "../winDir.h"
 
 char *get_full_path(char *name){
     char filename[1024] = {0};
@@ -52,7 +71,7 @@ RESPONSE *GetResponse(REQUEST *request)
     return response;
 }
 
-int SendResponse(SOCKET sock, RESPONSE *response, bool exitAfterSentSingleFile)
+int SendResponse(int sock, RESPONSE *response, bool exitAfterSentSingleFile)
 {
 	char buf[1024] = {0};
     int msg_len;
@@ -76,27 +95,49 @@ int SendResponse(SOCKET sock, RESPONSE *response, bool exitAfterSentSingleFile)
     while ((result = fread(buf, 1, 1024, f)) > 0)
     {
         msg_len = send(sock, buf, result, 0);
-
+	
+	#ifdef WIN32
         if (msg_len == SOCKET_ERROR) {
+        #endif
+        
+        #if !defined(WIN32)
+        if (msg_len == SO_ERROR) {
+        #endif
+        
             printf("Error sending data, reconnecting...\n");
-            closesocket(sock);
-            return -1;
+            #if !defined(_MSC_VER)
+			close(sock);
+			#endif
+			#if defined(_MSC_VER)
+			closesocket(sock);
+			#endif
+			return -1;
         }
         else if (!msg_len)
         {
             printf("Client closed connection\n");
-            closesocket(sock);
-            return 0;
+            #if !defined(_MSC_VER)
+			close(sock);
+			#endif
+            #if defined(_MSC_VER)
+			closesocket(sock);
+			#endif
+			return 0;
         }
     }
 
     printf("Served file %s\n", response->filepath);
 
-	//Single file transfer? Close server
-	if(exitAfterSentSingleFile == true){
+    //Single file transfer? Close server
+    if(exitAfterSentSingleFile == true){
+		#if !defined(_MSC_VER)
+		close(sock);
+		#endif
+		#if defined(_MSC_VER)
 		closesocket(sock);
-        return 0;
-	}
-
+		#endif
+		
+		return 0;
+    }
     return 1;
 }

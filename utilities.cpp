@@ -1,6 +1,5 @@
+/*
 #ifdef WIN32
-
-
 #include "stdafx.h"
 #include <winsock2.h>
 #pragma comment(lib,"ws2_32.lib")
@@ -9,6 +8,7 @@
 #pragma warning(disable:4996)
 #pragma warning(disable:4703)
 #endif
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,12 +36,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "utilities.h"
 #include "http/server.h"
-using namespace std; // std::cout, std::cin
 
 #ifdef GCC
 #include <dirent.h>
+#endif
+
+//network
+#if !defined(WIN32)
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/ip.h> /* superset of previous */
+#include <netdb.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <arpa/inet.h>
 #endif
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
@@ -51,6 +62,8 @@ using namespace std; // std::cout, std::cin
 #else
 #  define SET_BINARY_MODE(file)
 #endif
+
+using namespace std; // std::cout, std::cin
 
 #ifdef WIN32
 bool cv_snprintf(char* buf, int len, const char* fmt, ...){
@@ -70,7 +83,9 @@ bool cv_snprintf(char* buf, int len, const char* fmt, ...){
 #endif
     return res >= 0 && res < len;
 }
+#endif
 
+#if defined(WIN32) || !defined(ARM9)
 bool existFilePosix(char *fname){
 	bool exists = false;
 	FILE * f = fopen(fname, "rb"); 
@@ -81,7 +96,6 @@ bool existFilePosix(char *fname){
     return exists;
 }
 #endif
-
 
 //deps from TGDS not included in TGDS-utils
 #if !defined(ARM9)
@@ -111,7 +125,12 @@ int openServerSyncConn(int SyncPort, struct sockaddr_in * sain){
 	int my_socket = socket(AF_INET, SOCK_STREAM, 0);
 	int enable = 0;
 	if (setsockopt(my_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&enable, sizeof(int)) < 0){	//socket can be respawned ASAP if it's dropped
+		#if defined(_MSC_VER)
 		closesocket(my_socket); // remove the socket.
+		#endif
+		#if !defined(_MSC_VER)
+		close(my_socket); // remove the socket.
+		#endif
 		return -1;
 	}
 	if(my_socket == -1){
@@ -119,78 +138,95 @@ int openServerSyncConn(int SyncPort, struct sockaddr_in * sain){
 	}
 	int retVal = bind(my_socket,(struct sockaddr*)sain, srv_len);
 	if(retVal == -1){
+		#if defined(_MSC_VER)
 		closesocket(my_socket);
+		#endif
+		#if !defined(_MSC_VER)
+		close(my_socket);
+		#endif
 		return -1;
 	}
 	
 	int MAXCONN = 20;
 	retVal = listen(my_socket, MAXCONN);
 	if(retVal == -1){
+		#if defined(_MSC_VER)
 		closesocket(my_socket);
+		#endif
+		#if !defined(_MSC_VER)
+		close(my_socket);
+		#endif
 		return -1;
 	}
 	return my_socket;
 }
 
-void getMyIP(IP_v4 * myIP)
-{
-    char szBuffer[1024];
-
+void getMyIP(IP_v4 * myIP){
     #ifdef WIN32
+    char szBuffer[1024];
     WSADATA wsaData;
     WORD wVersionRequested = MAKEWORD(2, 0);
     if(::WSAStartup(wVersionRequested, &wsaData) != 0){
         
-	}
-    #endif
-
+    }
 
     if(gethostname(szBuffer, sizeof(szBuffer)) == SOCKET_ERROR)
     {
-      #ifdef WIN32
       WSACleanup();
-      #endif
     }
 
-    struct hostent *host = gethostbyname(szBuffer);
-    if(host == NULL)
+    struct hostent *host_info = gethostbyname(szBuffer);
+    if(host_info == NULL)
     {
-      #ifdef WIN32
       WSACleanup();
-      #endif
     }
 
-    //Obtain the computer's IP
-    myIP->b1 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b1;
-    myIP->b2 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b2;
-    myIP->b3 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b3;
-    myIP->b4 = ((struct in_addr *)(host->h_addr))->S_un.S_un_b.s_b4;
+	#define THIS_IP_SLOT ((int)2)
+	struct in_addr **address_list = (struct in_addr **)host_info->h_addr_list;
+    for(int i = THIS_IP_SLOT; address_list[i] != NULL; i++){
+        struct in_addr thisNetwork = *(address_list[i]);
+		//Obtain the computer's IP
+		myIP->b1 = thisNetwork.S_un.S_un_b.s_b1;
+		myIP->b2 = thisNetwork.S_un.S_un_b.s_b2;
+		myIP->b3 = thisNetwork.S_un.S_un_b.s_b3;
+		myIP->b4 = thisNetwork.S_un.S_un_b.s_b4;
+		break;
+    }
 
-    #ifdef WIN32
     WSACleanup();
+    #endif
+    
+    #if !defined(WIN32)
+    char host[256];
+    //char *IP;
+    struct hostent *host_entry;
+    int hostname;
+    hostname = gethostname(host, sizeof(host)); //find the host name
+    if(hostname == -1){
+      return;
+    }
+    
+    host_entry = gethostbyname(host); //find host information
+    if(host_entry == NULL){
+      return;
+    }
+    //IP = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0])); //Convert into IP string
+    //printf("Current Host Name: %s\n", host);
+    //printf("Host IP: %s\n", IP);
+    
+    struct in_addr * thisAddr = ((struct in_addr*) host_entry->h_addr_list[0]);
+    u32 ipNumv4 = (u32)thisAddr->s_addr;;
+    myIP->b1 = ((ipNumv4>>0)&0xFF);
+    myIP->b2 = ((ipNumv4>>8)&0xFF);
+    myIP->b3 = ((ipNumv4>>16)&0xFF);
+    myIP->b4 = ((ipNumv4>>24)&0xFF);
     #endif
 }
 
 int Wifi_GetIP(){
-	#ifndef WIN32
-	//todo: Linux
-	char host[256];
-	char *IP;
-	struct hostent *host_entry;
-	int hostname;
-	hostname = gethostname(host, sizeof(host)); //find the host name
-	check_host_name(hostname);
-	host_entry = gethostbyname(host); //find host information
-	check_host_entry(host_entry);
-	IP = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0])); //Convert into IP string
-	#endif
-	
-	#ifdef WIN32
 	struct IP_v4 v4;
 	getMyIP(&v4);
-	return (int)( (v4.b1 << 0) | (v4.b2 << 8) | (v4.b3 << 16) | (v4.b4 << 24) ); //order may be wrong
-	#endif
-	return 0;
+	return (int)( ((v4.b1 << 0)&0xFF) | ((v4.b2 << 8)&0xFF00) | ((v4.b3 << 16)&0xFF0000) | ((v4.b4 << 24)&0xFF000000) );
 }
 
 char * print_ip(uint32 ip, char * outBuf){
@@ -198,9 +234,14 @@ char * print_ip(uint32 ip, char * outBuf){
     bytes[0] = ip & 0xFF;
     bytes[1] = (ip >> 8) & 0xFF;
     bytes[2] = (ip >> 16) & 0xFF;
-    bytes[3] = (ip >> 24) & 0xFF;	
+    bytes[3] = (ip >> 24) & 0xFF;
+    #ifdef WIN32
     cv_snprintf(outBuf, sizeof(outBuf), "%d.%d.%d.%d\n", bytes[0], bytes[1], bytes[2], bytes[3]);
-	return outBuf;
+    #endif
+    #if !defined(WIN32)
+    snprintf(outBuf, sizeof(outBuf), "%d.%d.%d.%d\n", bytes[0], bytes[1], bytes[2], bytes[3]);
+    #endif
+    return outBuf;
 }
 
 #endif
@@ -221,7 +262,7 @@ void orderArgs(int argc, char *argv[]){
 }
 
 int convertbin2c(int argc, char *argv[] ){
-	char *buf;
+    char *buf;
     char* ident;
     unsigned int i, file_size, need_comma;
 
@@ -710,7 +751,15 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 
 	/* Write the descriptor */
 	char TGDSDescriptorBuffer[256+1];
+	
+	#ifdef WIN32
 	cv_snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory);
+	#endif
+	
+	#if !defined(WIN32)
+	snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory);
+	#endif
+	
 	ofstream ofs;
 	ofs.open("descriptor.txt", ofstream::out | std::ios::binary);
 	ofs << TGDSDescriptorBuffer;

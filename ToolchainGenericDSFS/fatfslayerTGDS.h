@@ -1,3 +1,13 @@
+#ifndef __fatfslayerTGDS_h__
+#define __fatfslayerTGDS_h__
+
+//TGDS FS defs: These must be typecasted otherwise compiler will generate wrong strb opcodes
+#define FT_NONE (int)(0)
+#define FT_FILE (int)(1)
+#define FT_DIR (int)(2)
+#define FT_BUFFER (int)(3)
+
+
 #if defined(WIN32) || defined(ARM9)
 /*
 
@@ -22,8 +32,6 @@ USA
 //Coto: this was rewritten by me so it could fit the following setup:
 //newlib libc nano ARM Toolchain. dirent.h is not supported in this newlib version so we restore it
 
-#ifndef __fatfslayerTGDS_h__
-#define __fatfslayerTGDS_h__
 
 ////////////////////////////////////////////////////////////////////////////INTERNAL CODE START/////////////////////////////////////////////////////////////////////////////////////
 
@@ -113,12 +121,6 @@ struct dirent {
     char d_name[MAX_TGDSFILENAME_LENGTH+1];	/* name must be no longer than this */
 };
 #endif
-
-//TGDS FS defs: These must be typecasted otherwise compiler will generate wrong strb opcodes
-#define FT_NONE (int)(0)
-#define FT_FILE (int)(1)
-#define FT_DIR (int)(2)
-#define FT_BUFFER (int)(3)
 
 #define structfd_isused 	(sint32)(1)
 #define structfd_isunused	(sint32)(0)

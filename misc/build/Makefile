@@ -19,11 +19,11 @@
 
 NEWLIB2_NTR 	=	$(CURDIR)/newlib-nds/newlib-nds
 TOOLCHAIN_DIR 	= $(CURDIR)/ToolchainGenericDS
-PROY_DIR		= $(CURDIR)/toolchaingenericds-multiboot
-PROY_DIR2		= $(CURDIR)/toolchaingenericds-ftpserver
+PROY_DIR		= $(CURDIR)/aquariumgl
+PROY_DIR2		= $(CURDIR)/batallionnds
 
 #Automated Commit message
-export COMMITMSG		:= -add microphone to libutils, also merge TGDS ndstools into TGDS unittest
+export COMMITMSG		:= -update TGDS project to TGDS 1.65 SDK Commit: https://bitbucket.org/Coto88/toolchaingenericds/commits/ca96219bc267899ca2307e6739841669f213b86b
 
 all: help
 
@@ -62,13 +62,10 @@ makeall:
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-zlib-example/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-multimediaplayer/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-multiboot/
-	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-foobilliard/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-wmbhost/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
-	$(MAKE)	-R	-C	$(CURDIR)/tgds-ramdisk_dldi/	
-	$(MAKE)	-R	-C	$(CURDIR)/snemulds/	
 	
 cleanall:
 	$(MAKE)	clean	-C	$(TOOLCHAIN_DIR)/
@@ -80,13 +77,10 @@ cleanall:
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-zlib-example/
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-multimediaplayer/
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-multiboot/
-	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-foobilliard/
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-wmbhost/
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
-	$(MAKE)	clean	-C	$(CURDIR)/tgds-ramdisk_dldi/
-	$(MAKE)	clean	-C	$(CURDIR)/snemulds/
 	
 	
 checkoutall:
@@ -100,12 +94,10 @@ checkoutall:
 	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-ftpserver.git $(CURDIR)/ToolchainGenericDS-FTPServer
 	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-multimediaplayer.git $(CURDIR)/ToolchainGenericDS-multimediaplayer
 	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-multiboot.git	$(CURDIR)/ToolchainGenericDS-multiboot
-	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-foobilliard.git	$(CURDIR)/ToolchainGenericDS-foobilliard
 	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-wmbhost.git	$(CURDIR)/ToolchainGenericDS-wmbhost
 	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-argvtest.git	$(CURDIR)/ToolchainGenericDS-argvtest
 	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-onlineapp.git	$(CURDIR)/ToolchainGenericDS-OnlineApp
 	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-unittest.git	$(CURDIR)/ToolchainGenericDS-UnitTest
-	git clone https://Coto88@bitbucket.org/Coto88/tgds-ramdisk_dldi.git	$(CURDIR)/tgds-ramdisk_dldi
 	git clone https://Coto88@bitbucket.org/Coto88/blender-nds-exporter.git	$(CURDIR)/blender-nds-exporter
 	git clone https://Coto88@bitbucket.org/Coto88/cgmodels.git	$(CURDIR)/cgmodels
 	
@@ -118,12 +110,10 @@ rebaseall:
 	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-FTPServer/
 	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-multimediaplayer/
 	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-multiboot/
-	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-foobilliard/
 	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-wmbhost/
 	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
-	$(MAKE)	rebase	-C	$(CURDIR)/tgds-ramdisk_dldi/
 	
 	
 checkoutenvironment:
@@ -155,9 +145,6 @@ updateall:
 	-mv	$(CURDIR)/ToolchainGenericDS-multiboot/ToolchainGenericDS-multiboot.nds	$(CURDIR)/ToolchainGenericDS-multiboot/release/arm7dldi-ntr/ToolchainGenericDS-multiboot.nds
 	-mv	/E/ToolchainGenericDS-multiboot.srl	$(CURDIR)/ToolchainGenericDS-multiboot/release/arm7dldi-twl/ToolchainGenericDS-multiboot.srl
 	
-	-mv	$(CURDIR)/ToolchainGenericDS-foobilliard/ToolchainGenericDS-foobilliard.nds	$(CURDIR)/ToolchainGenericDS-foobilliard/release/arm7dldi-ntr/ToolchainGenericDS-foobilliard.nds
-	-mv	/E/ToolchainGenericDS-foobilliard.srl	$(CURDIR)/ToolchainGenericDS-foobilliard/release/arm7dldi-twl/ToolchainGenericDS-foobilliard.srl
-	
 	-mv	$(CURDIR)/ToolchainGenericDS-wmbhost/ToolchainGenericDS-wmbhost.nds	$(CURDIR)/ToolchainGenericDS-wmbhost/release/arm7dldi-ntr/ToolchainGenericDS-wmbhost.nds
 	-mv	/E/ToolchainGenericDS-wmbhost.srl	$(CURDIR)/ToolchainGenericDS-wmbhost/release/arm7dldi-twl/ToolchainGenericDS-wmbhost.srl
 	
@@ -169,8 +156,6 @@ updateall:
 	
 	-mv	$(CURDIR)/ToolchainGenericDS-UnitTest/ToolchainGenericDS-UnitTest.nds	$(CURDIR)/ToolchainGenericDS-UnitTest/release/arm7dldi-ntr/ToolchainGenericDS-UnitTest.nds
 	-mv	/E/ToolchainGenericDS-UnitTest.srl	$(CURDIR)/ToolchainGenericDS-UnitTest/release/arm7dldi-twl/ToolchainGenericDS-UnitTest.srl
-	
-	-mv	/E/tgds-ramdisk_dldi.dldi	$(CURDIR)/tgds-ramdisk_dldi/release/tgds-ramdisk_dldi.dldi
 
 switchstable:
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS/
@@ -182,7 +167,6 @@ switchstable:
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS-zlib-example/
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS-multimediaplayer/
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS-multiboot/
-	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS-foobilliard/
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS-wmbhost/
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
@@ -199,7 +183,6 @@ switchmaster:
 	$(MAKE)	switchMaster	-C	$(CURDIR)/ToolchainGenericDS-zlib-example/
 	$(MAKE)	switchMaster	-C	$(CURDIR)/ToolchainGenericDS-multimediaplayer/
 	$(MAKE)	switchMaster	-C	$(CURDIR)/ToolchainGenericDS-multiboot/
-	$(MAKE)	switchMaster	-C	$(CURDIR)/ToolchainGenericDS-foobilliard/
 	$(MAKE)	switchMaster	-C	$(CURDIR)/ToolchainGenericDS-wmbhost/
 	$(MAKE)	switchMaster	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	switchMaster	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
@@ -219,12 +202,10 @@ commitall:
 	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-FTPServer/
 	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-multimediaplayer/
 	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-multiboot/
-	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-foobilliard/
 	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-wmbhost/
 	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
-	$(MAKE)	commitChanges	-C	$(CURDIR)/tgds-ramdisk_dldi/
 
 buildpkgs:
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/armv4core/
@@ -235,12 +216,10 @@ buildpkgs:
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-FTPServer/
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-multimediaplayer/
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-multiboot/
-	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-foobilliard/
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-wmbhost/
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
-	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/tgds-ramdisk_dldi/
 	
 help:
 	-@echo "MAKE tgdsproject: Builds TGDS environment + a given TGDS project (requires newlib for NintendoDS to be built first)"

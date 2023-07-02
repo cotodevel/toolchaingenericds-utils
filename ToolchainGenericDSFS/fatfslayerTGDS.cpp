@@ -1,6 +1,6 @@
-#if defined(WIN32) || defined(ARM9) //only WIN32 and NDS has TGDS FS DLDI support for now
+#if defined(_MSC_VER) || defined(ARM9) //only WIN32 and NDS has TGDS FS DLDI support for now
 
-#if defined(WIN32)
+#if defined(_MSC_VER)
 //disable _CRT_SECURE_NO_WARNINGS message to build this in VC++
 #pragma warning(disable:4996)
 #endif
@@ -148,18 +148,13 @@ bool closeFileFromStructFD(int StructFD){
 //retcode: FT_NONE , FT_DIR or FT_FILE
 int FileExists(char * filename){
 	int Type = FT_NONE;
-	int StructFD = OpenFileFromPathGetStructFD((char *)filename);
-	struct fd *pfd = getStructFD(StructFD);
-	if(pfd != NULL){
-		//file?
-		if(S_ISREG(pfd->stat.st_mode)){
-			Type = FT_FILE;
-		}
-		//dir?
-		else if(S_ISDIR(pfd->stat.st_mode)){
-			Type = FT_DIR;
-		}
-		closeFileFromStructFD(StructFD);
+	FILINFO fno;
+	FRESULT result = f_stat((const TCHAR*)filename, &fno);
+	if ((fno.fattrib & AM_MASK) & AM_DIR) {
+		Type = FT_DIR;
+	}
+	else if ((fno.fattrib & AM_MASK) & AM_ARC) {
+		Type = FT_FILE;
 	}
 	return Type;
 }

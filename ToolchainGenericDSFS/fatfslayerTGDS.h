@@ -8,7 +8,7 @@
 #define FT_BUFFER (int)(3)
 
 
-#if defined(WIN32) || defined(ARM9)
+#if defined(_MSC_VER) || defined(ARM9)
 /*
 
 			Copyright (C) 2017  Coto

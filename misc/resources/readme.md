@@ -161,3 +161,41 @@ glCallList(top);
 Example: https://bitbucket.org/Coto88/toolchaingenericds-unittest/src/master/
 
 ![ToolchainGenericDS](https://bytebucket.org/Coto88/ndsdisplaylistutils/raw/02aca38abbf1fec3cd145c7f43950920ff99f4cb/img/ndsdisplaylistutils_nds.png)
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[[[[[[[[  Useful guide for porting Coloured Triangle Example   ]]]]]]]]
+[[[[[[[[  from OpenGL 1.0 unpacked calls into OpenGL 1.1 Vertex Buffer Array format  ]]]]]]]]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+//////////////OGL 1.0 version: Use 3 vertices//////////////
+glBegin(GL_TRIANGLES);
+glColor3f( 1, 0, 0 ); // red
+glVertex2f( -0.9, -0.9 );
+glColor3f( 0, 1, 0 ); // green
+glVertex2f( 0.9, -0.9 );
+glColor3f( 0, 0, 1 ); // blue
+glVertex2f( 0, 0.7 );
+glEnd();
+
+
+//////////////VBO version//////////////
+float coords[6] = { -0.9,-0.9,  0.9,-0.9,  0,0.7 }; // two coords per vertex.
+float colors[9] = { 1,0,0,  0,1,0,  0,0,1 };  // three RGB values per vertex.
+
+glVertexPointer( 2, GL_FLOAT, 0, coords );  // Set data type and location.
+glColorPointer( 3, GL_FLOAT, 0, colors );
+
+glEnableClientState( GL_VERTEX_ARRAY );  // Enable use of arrays.
+glEnableClientState( GL_COLOR_ARRAY );
+
+glDrawArrays( GL_TRIANGLES, 0, 3 ); // Use 3 vertices, starting with vertex 0.
+
+glDisableClientState(GL_VERTEX_ARRAY);
+glDisableClientState(GL_COLOR_ARRAY);

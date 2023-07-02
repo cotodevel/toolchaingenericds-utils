@@ -212,7 +212,7 @@ void getCWDWin(char * outPath, char* pathToNavigate){
 	//Output Directory
 	LPWSTR Buffer[MAX_PATH];
 	DWORD dwRet;
-	dwRet = GetCurrentDirectory(MAX_PATH, LPWSTR(Buffer));
+	dwRet = GetCurrentDirectoryW(MAX_PATH, (LPWSTR)Buffer);
 	char converted[MAX_PATH];
 	wcstombs(converted, LPWSTR(Buffer), wcslen(LPWSTR(Buffer)) + 1);
 	char outputFullPath[256+1];

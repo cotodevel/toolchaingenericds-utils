@@ -89,3 +89,5 @@ TGDS filesystem support into ToolchainGenericDS:
 	misc/tcp
 		- UDP TGDS Server Companion Program. Used for UDP NIFI (Internet) in TGDS projects
 	
+	misc/petitfs-tgds.7z
+		- git repository having PetitFS + TGDS + DLDI support from VS2012 WIN32 Debugger (ARM7-lighter version of TGDS-Filesystem API implementation)

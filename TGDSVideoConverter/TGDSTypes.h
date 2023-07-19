@@ -33,7 +33,10 @@ typedef s32	_ssize_t;
 typedef u8 uint8_t;
 typedef u16 uint16_t;
 typedef u32 uint32_t;
+
+#if defined(_MSC_VER)
 typedef u64 uint64_t;
+#endif
 
 typedef u32	mode_t;
 

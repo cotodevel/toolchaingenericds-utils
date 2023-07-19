@@ -1,4 +1,4 @@
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || !defined(ARM9)
 
 #ifndef __TGDSTypes_h__
 #define __TGDSTypes_h__

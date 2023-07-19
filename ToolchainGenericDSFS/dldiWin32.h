@@ -166,8 +166,10 @@ extern bool sdio_ClearStatus();
 extern bool sdio_Shutdown();
 #endif
 
-
+#if defined(WIN32)
 extern DWORD get_fattime(void);
+#endif
+
 //extern void initDLDISnemulDS(char * snesFileName);
 
 #ifdef __cplusplus

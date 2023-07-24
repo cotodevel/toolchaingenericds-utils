@@ -394,7 +394,7 @@ int convertMP4toTVS(int argc, char *argv[] ){
 		std::string outputFile = "bmpFrames/output.txt";
 		std::remove(outputFile.c_str());
 		//FFmpeg convert
-		std::string cmd = string("ffmpeg -async 20 -i tvsIn/"+ file+" -vf scale=256:192,fps=fps=10,showinfo -pix_fmt rgb24 -y bmpFrames/yo%03d.bmp -f wav -acodec adpcm_ima_wav -ar 22050 bmpFrames/audio.ima > bmpFrames/output.txt 2>&1");
+		std::string cmd = string("ffmpeg -async 20 -i tvsIn/"+ file+" -vf scale=256:192,fps=fps=10,showinfo -pix_fmt rgb24 -y bmpFrames/yo%03d.bmp -f wav -acodec adpcm_ima_wav -ar 22050 -af apad=pad_dur=1,lowpass=f=11000,afftdn=nf=-25,dynaudnorm=p=0.9:s=5 bmpFrames/audio.ima > bmpFrames/output.txt 2>&1");
 		system(cmd.c_str());
 
 		////////////////////////////////////////////////////////TVS start

@@ -616,6 +616,10 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		strcpy(baseTargetDecompressorDirectory, "");
 	}
 	
+	// "remotegdbflag"
+	char remotegdbflag[256+1];
+	strcpy(remotegdbflag, argv[7]); //"gdbenable" / "nogdb"
+	
 	char TarName[256];
 	strcpy(TarName, argv[1]);
 	char TGDSMainApp[256];
@@ -804,12 +808,12 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	/* Write the descriptor */
 	char TGDSDescriptorBuffer[256+1];
 	
-	#ifdef WIN32
-	cv_snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory);
+	#ifdef _MSC_VER
+	cv_snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\nremotegdbflag = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory, remotegdbflag);
 	#endif
 	
-	#if !defined(WIN32)
-	snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory);
+	#ifndef _MSC_VER
+	snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\nremotegdbflag = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory, remotegdbflag);
 	#endif
 	
 	ofstream ofs;
@@ -918,7 +922,6 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	char TGDSLibrarySourceDirectory[256];
 	char TGDSProjectNTRorTWLMode[256];
 	char TGDSProjectSourceDirectory[256];
-	char gdbEnabled[256];
 
 	//arg7  = remotebooter
 	//arg6 = $(LIBPATTH)
@@ -939,8 +942,6 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 		strcpy(baseTargetDecompressorDirectory, argv[5]);
 		strcpy(TGDSLibrarySourceDirectory, argv[6]);
 
-		strcpy(gdbEnabled, "nogdb"); //todo : "gdbenable" / "nogdb" by argv
-
 	getCWDWin(TGDSProjectSourceDirectory, argv[1]); //release
 	strcat(TGDSProjectSourceDirectory, "/");
 	strcpy(TGDSProjectNTRorTWLMode, argv[3]); 
@@ -951,10 +952,8 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	argvPackage[4] = (char*)&TGDSProjectSourceDirectory[0]; //{basedir}/release/arm7dldi-ntr (src directory fullpath)
 	argvPackage[5] = (char*)&TGDSProjectNTRorTWLMode[0]; //ntr_mode or twl_mode
 	argvPackage[6] = argv[8]; //override TGDS Package name if provided or use the default Main App one
-	argvPackage[7] = (char*)&gdbEnabled[0]; //override TGDS Package name if provided or use the default Main App one
-	
+	argvPackage[7] = (char*)argv[9]; //is remoteboot or gdb debug session
 	argvPackage[8] = (char*)argv[1];	// /release/arm7dldi-ntr (src directory relative path)
-	
 	int result = TGDSPKGBuilder(argcPackage, argvPackage);
 	
 	//now send to NDS

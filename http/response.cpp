@@ -32,28 +32,8 @@ char *get_full_path(char *name){
     char filename[1024] = {0};
     int i;
 
-	#ifndef WIN32
-	getcwd(filename, 1024);
-	#endif
-	
-	#ifdef WIN32
 	getCWDWin(filename, "");
-	#endif
 
-    #ifndef WIN32
-    if ((filename[strlen(filename)] != '\\') && 
-        (name[strlen(name)] != '/') &&
-        (name[strlen(name)] != '\\'))
-    {
-        strcat(filename, "\\");
-    }
-	#endif
-
-    for (i = 0; name[i]; i++){
-        if (name[i] == '/'){
-            name[i] = '\\';
-		}
-	}
     strcat(filename, name);
     return strdup(filename);
 }

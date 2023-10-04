@@ -31,11 +31,11 @@ installzlib:
 
 $(TARGET): $(OBJECTS)
 	-@g++	$(OBJECTS)	-Wall	-L	$(CURDIR)	$(LIBS)	-o	$@
-	-@sudo mv	$(CURDIR)/$(TARGET)	$(GCC_BUILD_ENV)$(GCC_BIN_PATH)$(TARGET)
+	-@sudo mv	$(CURDIR)/$(TARGET)	/usr/arm-none-eabi/bin/$(TARGET)
 	-@echo '$(TARGET) build OK';
 
 clean:
-	-rm -f *.o $(OBJECTS) $(TARGET) libzcustom.a
+	-rm -f *.o $(OBJECTS) $(TARGET) libzcustom.a	/usr/arm-none-eabi/bin/$(TARGET)
 	-$(MAKE)	clean	-C	zlib-1.2.11/
 		
 debug:

@@ -61,7 +61,6 @@ int main( int argc, char *argv[] ){
 	}
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "remotebooter", strlen("remotebooter")) == 0)){
 		orderArgs(argc, argv);
-		printf("the arg I want is at 0:%s", argv[1]);
 		return TGDSRemoteBooter(argc, argv);
 	}
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "httpserver", strlen("httpserver")) == 0)){

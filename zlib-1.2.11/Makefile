@@ -16,19 +16,19 @@
 # To install in $HOME instead of /usr/local, use:
 #    make install prefix=$HOME
 
-CC=cc
+CC=gcc
 
-CFLAGS=-O
+CFLAGS=-O3 -DUSE_MMAP
 #CFLAGS=-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7
-#CFLAGS=-g -DDEBUG
+#CFLAGS=-g -DDEBUG	-DNOCRYPT
 #CFLAGS=-O3 -Wall -Wwrite-strings -Wpointer-arith -Wconversion \
 #           -Wstrict-prototypes -Wmissing-prototypes
 
-LDFLAGS=libzcustom.a
-LDSHARED=$(CC)
-CPP=$(CC) -E
+LDFLAGS=-L. libz.a
+LDSHARED=gcc
+CPP=gcc -E
 
-LIBS=$(LDFLAGS)
+LIBS=libz.a
 SHAREDLIB=libz.so
 SHAREDLIBV=libz.so.1.2.3
 SHAREDLIBM=libz.so.1
@@ -39,22 +39,22 @@ TAR=tar
 SHELL=/bin/sh
 EXE=
 
-prefix = /usr/local
-exec_prefix = ${prefix}
-libdir = ${exec_prefix}/lib
-includedir = ${prefix}/include
-mandir = ${prefix}/share/man
+prefix =/usr/local/zlib
+exec_prefix =${prefix}
+libdir =${exec_prefix}/lib
+includedir =${prefix}/include
+mandir =${prefix}/share/man
 man3dir = ${mandir}/man3
 
 OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
-       zutil.o inflate.o infback.o inftrees.o ioapi.o zip.o minizip.o inffast.o
+       zutil.o inflate.o infback.o inftrees.o inffast.o ioapi.o	zip.o
 
 OBJA =
 # to use the asm code: make OBJA=match.o
 
-TEST_OBJS = example.o minigzip.o
+TEST_OBJS = example.o minigzip.o minizip.o
 
-all: example$(EXE) minigzip$(EXE)
+all: example$(EXE) minigzip$(EXE) minizip$(EXE)
 
 check: test
 test: all
@@ -67,7 +67,7 @@ test: all
 	  echo '		*** zlib test FAILED ***'; \
 	fi
 
-$(LDFLAGS): $(OBJS) $(OBJA)
+libz.a: $(OBJS) $(OBJA)
 	$(AR) $@ $(OBJS) $(OBJA)
 	-@ ($(RANLIB) $@ || true) >/dev/null 2>&1
 
@@ -89,6 +89,9 @@ example$(EXE): example.o $(LIBS)
 minigzip$(EXE): minigzip.o $(LIBS)
 	$(CC) $(CFLAGS) -o $@ minigzip.o $(LDFLAGS)
 
+minizip$(EXE): minizip.o $(LIBS)
+	$(CC) $(CFLAGS) -o $@ minizip.o $(LDFLAGS)
+
 install: $(LIBS)
 	-@if [ ! -d $(exec_prefix) ]; then mkdir -p $(exec_prefix); fi
 	-@if [ ! -d $(includedir)  ]; then mkdir -p $(includedir); fi
@@ -98,7 +101,7 @@ install: $(LIBS)
 	chmod 644 $(includedir)/zlib.h $(includedir)/zconf.h
 	cp $(LIBS) $(libdir)
 	cd $(libdir); chmod 755 $(LIBS)
-	-@(cd $(libdir); $(RANLIB) $(LDFLAGS) || true) >/dev/null 2>&1
+	-@(cd $(libdir); $(RANLIB) libz.a || true) >/dev/null 2>&1
 	cd $(libdir); if test -f $(SHAREDLIBV); then \
 	  rm -f $(SHAREDLIB) $(SHAREDLIBM); \
 	  ln -s $(SHAREDLIBV) $(SHAREDLIB); \
@@ -112,7 +115,7 @@ install: $(LIBS)
 
 uninstall:
 	cd $(includedir); \
-	cd $(libdir); rm -f $(LDFLAGS); \
+	cd $(libdir); rm -f libz.a; \
 	if test -f $(SHAREDLIBV); then \
 	  rm -f $(SHAREDLIBV) $(SHAREDLIB) $(SHAREDLIBM); \
 	fi
@@ -149,8 +152,7 @@ inflate.o: zutil.h zlib.h zconf.h inftrees.h inflate.h inffast.h
 infback.o: zutil.h zlib.h zconf.h inftrees.h inflate.h inffast.h
 inftrees.o: zutil.h zlib.h zconf.h inftrees.h
 minigzip.o: zlib.h zconf.h
+minizip.o: zlib.h zconf.h
 trees.o: deflate.h zutil.h zlib.h zconf.h trees.h
 uncompr.o: zlib.h zconf.h
 zutil.o: zutil.h zlib.h zconf.h
-ioapi.o: zutil.h zlib.h zconf.h
-zip.o: zutil.h zlib.h zconf.h

@@ -61,9 +61,9 @@
 # include <sys/stat.h>
 #endif
 
-#include "zip.h"
-#include "zlib.h"
-#include "crc32.h"
+#include "zlib-1.2.11/zip.h"
+#include "zlib-1.2.11/zlib.h"
+#include "zlib-1.2.11/crc32.h"
 
 #ifdef _WIN32
         #define USEWIN32IOAPI
@@ -247,12 +247,6 @@ static int isLargeFile(const char* filename)
 
  return largeFile;
 }
-
-#if !defined(_MSC_VER) && !defined(ARM9)
-int main(int argc, char *argv[]){
-	return mainZIPBuild(argc, argv);
-}
-#endif
 
 int mainZIPBuild(int argc, char *argv[])
 {

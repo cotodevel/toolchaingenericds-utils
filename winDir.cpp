@@ -222,8 +222,10 @@ void getCWDWin(char * outPath, char* pathToNavigate){
 	
 	#ifndef _MSC_VER
 	char cwd[256];
-	strcpy(cwd, pathToNavigate);
-	getcwd(cwd, strlen(cwd)+1);
+	getcwd(cwd, sizeof(cwd));
 	strcpy(outPath, cwd);
+	strcat(outPath, pathToNavigate);
+	//printf("cwd so far: %s", outPath);
+	//exit(0);
 	#endif
 }

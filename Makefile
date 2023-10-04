@@ -18,7 +18,7 @@ installzlib:
 	-@echo 'setup zlib'
 	-@cd	$(CURDIR)/zlib-1.2.11 &&	./configure --prefix=/usr/local/zlib
 	-@sudo $(MAKE)	-C	$(CURDIR)/zlib-1.2.11
-	-@sudo mv	$(CURDIR)/zlib-1.2.11/libzcustom.a	$(CURDIR)
+	-@sudo mv	$(CURDIR)/zlib-1.2.11/libz.a	$(CURDIR)/libzcustom.a
 	
 
 %.o: %.cpp 

@@ -32,7 +32,11 @@ int mainHTTPServer(int argc, char **argv){
     int addr_len;
     struct sockaddr_in local, client_addr;
     int count = 0;
-    
+    int serverPort = atoi(argv[2]);
+    char IPStr[INET_ADDRSTRLEN];
+
+    //printf("IP: %s - Port: %d\n", argv[3], serverPort);
+
     #ifdef WIN32
     SOCKET sock, msg_sock;
     WSADATA wsaData;
@@ -50,8 +54,11 @@ int mainHTTPServer(int argc, char **argv){
     
     // Fill in the address structure
     local.sin_family        = AF_INET;
-    local.sin_addr.s_addr   = INADDR_ANY;
-    local.sin_port          = htons(DEFAULT_PORT);
+    //inet_pton(AF_INET, argv[3], &(local.sin_addr.s_addr)); //doesn't work because virtual LAN adapter is isolated
+    local.sin_addr.s_addr   = INADDR_ANY; //so WSL2 virtual LAN adapter can reach Host OS
+    local.sin_port          = htons(serverPort);
+    // now get it back and print it
+    inet_ntop(AF_INET, &(local.sin_addr), IPStr, INET_ADDRSTRLEN);
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -61,16 +68,26 @@ int mainHTTPServer(int argc, char **argv){
     #if !defined(WIN32)
     if (sock == -1){
     #endif
-        printf("socket()");
+        printf("socket() creation fail. Try again.\n");
+        exit(-1);
     }
     
+    #if !defined(WIN32) //prevent port to be taken over by the same app
+    const int enable = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0){
+        printf("setsockopt(SO_REUSEADDR) failed. Try again.\n");
+        exit(-1);
+    }
+    #endif
+
     #ifdef WIN32
     if (bind(sock, (struct sockaddr *)&local, sizeof(local)) == SOCKET_ERROR){
     #endif
     #if !defined(WIN32)
     if (bind(sock, (struct sockaddr *)&local, sizeof(local)) == -1){
     #endif
-        printf("bind()");
+        printf("Port %d is in use. Try again\n", serverPort);
+        exit(-1);
     }
 listen_goto:
 	
@@ -90,7 +107,7 @@ listen_goto:
 		bytes[1] = (thisIp >> 8) & 0xFF;
 		bytes[2] = (thisIp >> 16) & 0xFF;
 		bytes[3] = (thisIp >> 24) & 0xFF;
-		printf("\n\nHTTP 1.0 Server. Port: %d - Mounted at: %d.%d.%d.%d\n", DEFAULT_PORT, bytes[0], bytes[1], bytes[2], bytes[3]);
+		printf("\n\nHTTP 1.0 Server. Port: %d - Mounted at: %d.%d.%d.%d (%s)\n", serverPort, bytes[0], bytes[1], bytes[2], bytes[3], IPStr);
 	}
 	if(quitAfterSentSingleFileToClient == true){
 	printf("Quit inmediately after file transfer: ENABLED\n");

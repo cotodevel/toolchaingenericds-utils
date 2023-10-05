@@ -580,6 +580,9 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	//printf("DEBUGGER: argv : %s\n", argv[6]);	// TGDSPKG filename
 	//printf("DEBUGGER: argv : %s\n", argv[7]);	// "gdbenable" / "nogdb"
 	//printf("DEBUGGER: argv : %s\n", argv[8]);	// src directory /release/arm7dldi-ntr (relative path)
+	//printf("\nDEBUGGER: argv : %s \n", argv[9]);	// //TGDS-multiboot's remoteboot port number
+	//printf("\nDEBUGGER: argv : %s \n", argv[10]);	// //TGDS-multiboot's remoteboot IP
+	//exit(0);
 
 	/* avoid end-of-line conversions */
     SET_BINARY_MODE(stdin);
@@ -618,8 +621,12 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	
 	// "remotegdbflag"
 	char remotegdbflag[256+1];
-	strcpy(remotegdbflag, argv[7]); //"gdbenable" / "nogdb"
+	strcpy(remotegdbflag, argv[6]); //"gdbenable" / "nogdb"
 	
+	//TGDS-multiboot's remoteboot port number
+	//printf("\n port:%s \n",argv[9]);
+	//exit(1);
+
 	char TarName[256];
 	strcpy(TarName, argv[1]);
 	char TGDSMainApp[256];
@@ -677,7 +684,7 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	for(int i = 0; i < vec.size()-1; i++){
 		dirItem item = vec.at(i);
 		char * filename = (char*)item.path.c_str();
-		if( (string(filename) != "..") && (string(TarName) != string(filename)) && ((string(TarName) + string(".gz")) != string(filename)) ){
+		if( (string(filename) != "..") && (string(TarName) != string(filename)) && ((string(TarName) + string(".gz")) != string(filename)) && (string("toolchaingenericds-multiboot-config.txt") != string(filename)) ){
 			/* Add a file */
 			if(item.type == FT_FILE){
 				char fullPathIn[256+1];
@@ -805,35 +812,68 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	#endif
 	
 
-	/* Write the descriptor */
-	char TGDSDescriptorBuffer[256+1];
-	
-	#ifdef _MSC_VER
-	cv_snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\nremotegdbflag = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory, remotegdbflag);
-	#endif
-	
-	#ifndef _MSC_VER
-	snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\nremotegdbflag = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory, remotegdbflag);
-	#endif
-	
-	ofstream ofs;
-	ofs.open("descriptor.txt", ofstream::out | std::ios::binary);
-	if (ofs)
+	// Write the descriptor 
 	{
-		cout << "descriptor.txt create OK \n";
+		char TGDSDescriptorBuffer[256+1];
+		#ifdef _MSC_VER
+		cv_snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\nremotegdbflag = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory, remotegdbflag);
+		#endif
+		
+		#ifndef _MSC_VER
+		snprintf(TGDSDescriptorBuffer, sizeof(TGDSDescriptorBuffer), "[Global]\n\nmainApp = %s\n\nmainAppCRC32 = %x\n\nTGDSSdkCrc32 = %x\n\nbaseTargetPath = %s\n\nremotegdbflag = %s\n\n", TGDSMainApp, crc32mainApp, (crc32TGDSSDKlibcnano7 + crc32TGDSSDKlibcnano9 + crc32TGDSSDKlibtoolchaingen7 + crc32TGDSSDKlibtoolchaingen9), baseTargetDecompressorDirectory, remotegdbflag);
+		#endif
+		ofstream ofs;
+		ofs.open("descriptor.txt", ofstream::out | std::ios::binary);
+		if (ofs)
+		{
+			cout << "descriptor.txt create OK \n";
+		}
+		else
+		{
+			cerr << "Could not create descriptor.txt \n";
+		}
+		
+		ofs << TGDSDescriptorBuffer;
+		ofs << endl;
+		ofs.close();
+
+		zipList+=(" "+string("descriptor.txt"));
+		strcpy(&zipArgs[vec.size()-3][0], "descriptor.txt");
 	}
-	else
+
+
+	// Write toolchaingenericds-multiboot-config.txt
 	{
-		cerr << "Could not create descriptor.txt \n";
+		char TGDSMBCFGBuffer[256];
+		char fullNDSPath[256];
+		strcpy(fullNDSPath, "0:/");
+		strcat(fullNDSPath, TGDSMainApp);
+		#ifdef _MSC_VER
+		cv_snprintf(TGDSMBCFGBuffer, sizeof(TGDSMBCFGBuffer), "[Global]\n# ToolchainGenericDS-multiboot global settings \n\ntgdsutilsremotebooteripaddr = %s\ntgdsutilsremotebooterport = %s\ntgdsmultitbootlasthomebrew = %s\n", argv[10], argv[9], fullNDSPath);
+		#endif		
+		#ifndef _MSC_VER
+		snprintf(TGDSMBCFGBuffer, sizeof(TGDSMBCFGBuffer), "[Global]\n# ToolchainGenericDS-multiboot global settings \n\ntgdsutilsremotebooteripaddr = %s\ntgdsutilsremotebooterport = %s\ntgdsmultitbootlasthomebrew = %s\n", argv[10], argv[9], fullNDSPath);
+		#endif
+		ofstream ofs;
+		ofs.open("toolchaingenericds-multiboot-config.txt", ofstream::out | std::ios::binary);
+		if (ofs)
+		{
+			cout << "toolchaingenericds-multiboot-config.txt create OK \n";
+		}
+		else
+		{
+			cerr << "Could not create toolchaingenericds-multiboot-config.txt \n";
+		}
+		
+		ofs << TGDSMBCFGBuffer;
+		ofs << endl;
+		ofs.close();
+
+		zipList+=(" "+string("toolchaingenericds-multiboot-config.txt"));
+		strcpy(&zipArgs[vec.size()-2][0], "toolchaingenericds-multiboot-config.txt");
 	}
-	
-	ofs << TGDSDescriptorBuffer;
-	ofs << endl;
-	ofs.close();
 
-	zipList+=(" "+string("descriptor.txt"));
-
-	strcpy(&zipArgs[vec.size()-2][0], "descriptor.txt");
+	//close the argv
 	strcpy(&zipArgs[vec.size()-1][0], "");
 	
 	/*
@@ -852,10 +892,11 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	note: filepaths are relative to current working directory
 	*/
 	
-	argc = vec.size() + 3; 
+	argc = vec.size() + 2; 
 
 	char * argvZip[MAX_ARGV_BUFFER_SIZE_TGDSUTILS]; 
-
+	memset(argvZip, 0, sizeof(argvZip));
+	
 	argv[0] = "thisApp"; //unused
 	argv[1] = "-o ";						//arg n
 	argv[2] = "remotepackage.zip"; //.zip filename to create
@@ -864,14 +905,14 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	argvZip[1] = argv[1];
 	argvZip[2] = argv[2];
 
-	for(int i = 0; i < (vec.size()+1); i++){
+	for(int i = 0; i < (vec.size()+3); i++){
 		if( strlen(&zipArgs[i][0]) > 0 ){
 			argvZip[3+i] = &zipArgs[i][0];
-			//printf("\n current zip arg: %s \n", argvZip[3+i]);
+			printf("\n current zip arg: %s \n", argvZip[3+i]);
 		}
 	}
 	
-	mainZIPBuild(argc - 1, argvZip);
+	mainZIPBuild(argc, argvZip);
 
 	//cleanup
 	for(int i = 0; i < (vec.size()-1); i++){
@@ -881,6 +922,7 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		//printf("\n erasing: %s \n", buf);
 		remove(buf);
 	}
+	
 
 	printf("TGDSPKG %s build OK \n", "remotepackage.zip");
     return 0;
@@ -954,15 +996,20 @@ int TGDSRemoteBooter(int argc, char *argv[]){
 	argvPackage[6] = argv[8]; //override TGDS Package name if provided or use the default Main App one
 	argvPackage[7] = (char*)argv[9]; //is remoteboot or gdb debug session
 	argvPackage[8] = (char*)argv[1];	// /release/arm7dldi-ntr (src directory relative path)
+	argvPackage[9] = (char*)argv[10]; //remoteboot port
+	argvPackage[10] = (char*)argv[2]; //remoteboot IP
+	
 	int result = TGDSPKGBuilder(argcPackage, argvPackage);
 	
 	//now send to NDS
     char fullPath[256];
 	getCWDWin(fullPath, (char*)"/"); 
-	argcPackage = 2;
+	argcPackage = 4;
 	argvPackage[0] = "httpserver";
 	argvPackage[1] = (char*)"-quit";
-	
+	argvPackage[2] = (char*)argv[10]; //remoteboot port
+	argvPackage[3] = (char*)argv[2]; //remoteboot IP
+
 	mainHTTPServer(argcPackage, argvPackage);
 	printf("TGDSRemoteBooter End\n");
 	return 0;

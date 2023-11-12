@@ -680,8 +680,8 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 	char zipArgs[10][256];
 	/* open file for writing */
 	string zipList = "";
-	int argStart = 4;
-	for(int i = 0; i < vec.size()-1; i++){
+	int argStart = 0;
+	for(int i = 0; i < vec.size(); i++){
 		dirItem item = vec.at(i);
 		char * filename = (char*)item.path.c_str();
 		if( (string(filename) != "..") && (string(TarName) != string(filename)) && ((string(TarName) + string(".gz")) != string(filename)) && (string("toolchaingenericds-multiboot-config.txt") != string(filename)) ){
@@ -717,8 +717,7 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 					}
 					infile.close();
 					zipList+=(" "+string(filename));
-					strcpy(&zipArgs[argStart-4][0], filename);
-					argv[argStart] = (char*)&zipArgs[argStart-4][0];
+					strcpy(&zipArgs[argStart][0], filename);
 					argStart++;
 				}
 				else
@@ -736,7 +735,7 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 				}
 			}
 			else if(item.type == FT_DIR){
-				//todo: read dir, iterate contents, then create dir and files inside, in TAR 
+				 
 			}
 		}
 	}
@@ -826,11 +825,11 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		ofs.open("descriptor.txt", ofstream::out | std::ios::binary);
 		if (ofs)
 		{
-			cout << "descriptor.txt create OK \n";
+			cout << "\ndescriptor.txt create OK \n";
 		}
 		else
 		{
-			cerr << "Could not create descriptor.txt \n";
+			cerr << "\nCould not create descriptor.txt \n";
 		}
 		
 		ofs << TGDSDescriptorBuffer;
@@ -838,7 +837,8 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		ofs.close();
 
 		zipList+=(" "+string("descriptor.txt"));
-		strcpy(&zipArgs[vec.size()-3][0], "descriptor.txt");
+		strcpy(&zipArgs[argStart][0], "descriptor.txt");
+		argStart++;
 	}
 
 
@@ -858,11 +858,11 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		ofs.open("toolchaingenericds-multiboot-config.txt", ofstream::out | std::ios::binary);
 		if (ofs)
 		{
-			cout << "toolchaingenericds-multiboot-config.txt create OK \n";
+			cout << "\ntoolchaingenericds-multiboot-config.txt create OK \n";
 		}
 		else
 		{
-			cerr << "Could not create toolchaingenericds-multiboot-config.txt \n";
+			cerr << "\nCould not create toolchaingenericds-multiboot-config.txt \n";
 		}
 		
 		ofs << TGDSMBCFGBuffer;
@@ -870,52 +870,41 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		ofs.close();
 
 		zipList+=(" "+string("toolchaingenericds-multiboot-config.txt"));
-		strcpy(&zipArgs[vec.size()-2][0], "toolchaingenericds-multiboot-config.txt");
+		strcpy(&zipArgs[argStart][0], "toolchaingenericds-multiboot-config.txt");
+		argStart++;
 	}
 
-	//close the argv
-	strcpy(&zipArgs[vec.size()-1][0], "");
-	
-	/*
-	//Example
-		remove("remotepackage2.zip");
+	argc = argStart + 3; 	//descriptor.txt & toolchaingenericds-multiboot-config.txt & dummy end
 
-		//todo: copy files from another path into this path, list them below, add descriptor, call zip then delete them
-		argc = 4;
-		argv[0] = "thisApp"; //unused
-		argv[1] = "remotepackage2.zip"; //.zip filename to create
-		argv[2] = "Debug/release/tgds_multiboot_payload_twl.bin"; //arg 0
-		argv[3] = "Debug/release/ToolchainGenericDS-multimediaplayer.srl"; //arg 1
-								//arg n
-		mainZIPBuild(argc, argv);
-		
-	note: filepaths are relative to current working directory
-	*/
-	
-	argc = vec.size() + 2; 
-
-	char * argvZip[MAX_ARGV_BUFFER_SIZE_TGDSUTILS]; 
+	char argvZip[MAX_ARGV_BUFFER_SIZE_TGDSUTILS][MAX_TGDSFILENAME_LENGTH]; 
 	memset(argvZip, 0, sizeof(argvZip));
+	strcpy((char*)&argvZip[0][0], (char*)"thisApp"); //unused
+	strcpy((char*)&argvZip[1][0], (char*)"-o "); //emit zip
+	strcpy((char*)&argvZip[2][0], (char*)"remotepackage.zip"); //.zip filename to create
 	
-	argv[0] = "thisApp"; //unused
-	argv[1] = "-o ";						//arg n
-	argv[2] = "remotepackage.zip"; //.zip filename to create
-	
-	argvZip[0] = argv[0];
-	argvZip[1] = argv[1];
-	argvZip[2] = argv[2];
+	for(int i = 0; i < 12; i++){
+		argv[i] = NULL;
+	}
 
-	for(int i = 0; i < (vec.size()+3); i++){
-		if( strlen(&zipArgs[i][0]) > 0 ){
-			argvZip[3+i] = &zipArgs[i][0];
-			printf("\n current zip arg: %s \n", argvZip[3+i]);
+	argv[0] = (char*)&argvZip[0][0];
+	argv[1] = (char*)&argvZip[1][0];
+	argv[2] = (char*)&argvZip[2][0];
+	
+	for(int i = 0; i < argc; i++){
+		if( strlen(&zipArgs[i][0]) > 4 ){
+			strcpy((char*)&argvZip[3+i][0], (char*)&zipArgs[i][0]); //.zip filename to create
+			argv[3+i] = (char*)&argvZip[3+i][0];
 		}
 	}
 	
-	mainZIPBuild(argc, argvZip);
+	for(int i = 0; i < argc; i++){
+		printf("\n current zip arg: %s \n", (char*)argv[i]);
+	}
+
+	mainZIPBuild(argc, argv);
 
 	//cleanup
-	for(int i = 0; i < (vec.size()-1); i++){
+	for(int i = 0; i < (argc); i++){
 		char buf[256];
 		getCWDWin(buf, "/");
 		strcat(buf, (char*)argvZip[3+i]);
@@ -923,7 +912,6 @@ int TGDSPKGBuilder(int argc, char *argv[] ){
 		remove(buf);
 	}
 	
-
 	printf("TGDSPKG %s build OK \n", "remotepackage.zip");
     return 0;
 }

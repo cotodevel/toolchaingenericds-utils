@@ -28,6 +28,9 @@ export COMMITMSG		:= -update TGDS project to TGDS 1.65 SDK Commit: https://bitbu
 all: help
 
 #Make
+toolchaingenericds:
+	$(MAKE)	-R	-C	$(TOOLCHAIN_DIR)/
+
 tgdsproject:
 	$(MAKE)	-R	-C	$(TOOLCHAIN_DIR)/
 	$(MAKE)	-R	-C	$(PROY_DIR)/
@@ -54,6 +57,7 @@ cleannewlib:
 
 makeall:
 	$(MAKE)	-R	-C	$(TOOLCHAIN_DIR)/
+	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-multiboot/
 	$(MAKE)	-R	-C	$(CURDIR)/armv4core/
 	$(MAKE)	-R	-C	$(CURDIR)/gbaARMHook/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-FTPServer/
@@ -61,12 +65,17 @@ makeall:
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-template/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-zlib-example/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-multimediaplayer/
-	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-multiboot/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-wmbhost/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	-R	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
-	
+	$(MAKE)	-R	-C	$(CURDIR)/cgmodels/
+	$(MAKE)	-R	-C	$(CURDIR)/tgdsproject3d/
+	$(MAKE)	-R	-C	$(CURDIR)/snakegl/
+	$(MAKE)	-R	-C	$(CURDIR)/aquariumgl/
+	$(MAKE)	-R	-C	$(CURDIR)/batallionnds/
+	$(MAKE)	-R	-C	$(CURDIR)/snemulds/
+
 cleanall:
 	$(MAKE)	clean	-C	$(TOOLCHAIN_DIR)/
 	$(MAKE)	clean	-C	$(CURDIR)/armv4core/
@@ -81,7 +90,12 @@ cleanall:
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	clean	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
-	
+	$(MAKE)	clean	-C	$(CURDIR)/cgmodels/
+	$(MAKE)	clean	-C	$(CURDIR)/tgdsproject3d/
+	$(MAKE)	clean	-C	$(CURDIR)/snakegl/
+	$(MAKE)	clean	-C	$(CURDIR)/aquariumgl/
+	$(MAKE)	clean	-C	$(CURDIR)/batallionnds/
+	$(MAKE)	clean	-C	$(CURDIR)/snemulds/
 	
 checkoutall:
 	git clone https://Coto88@bitbucket.org/Coto88/coto88.bitbucket.org.git $(CURDIR)/coto88.bitbucket.org
@@ -100,7 +114,12 @@ checkoutall:
 	git clone https://Coto88@bitbucket.org/Coto88/toolchaingenericds-unittest.git	$(CURDIR)/ToolchainGenericDS-UnitTest
 	git clone https://Coto88@bitbucket.org/Coto88/blender-nds-exporter.git	$(CURDIR)/blender-nds-exporter
 	git clone https://Coto88@bitbucket.org/Coto88/cgmodels.git	$(CURDIR)/cgmodels
-	
+	git clone https://Coto88@bitbucket.org/Coto88/tgdsproject3d.git	$(CURDIR)/tgdsproject3d
+	git clone https://Coto88@bitbucket.org/Coto88/snakegl.git	$(CURDIR)/snakegl
+	git clone https://Coto88@bitbucket.org/Coto88/aquariumgl.git	$(CURDIR)/aquariumgl
+	git clone https://Coto88@bitbucket.org/Coto88/batallionnds.git	$(CURDIR)/batallionnds
+	git clone https://Coto88@bitbucket.org/Coto88/snemulds.git	$(CURDIR)/snemulds
+
 rebaseall:
 	$(MAKE)	rebase	-C	$(CURDIR)/armv4core/
 	$(MAKE)	rebase	-C	$(CURDIR)/gbaARMHook/
@@ -114,7 +133,12 @@ rebaseall:
 	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	rebase	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
-	
+	$(MAKE)	rebase	-C	$(CURDIR)/cgmodels/
+	$(MAKE)	rebase	-C	$(CURDIR)/tgdsproject3d/
+	$(MAKE)	rebase	-C	$(CURDIR)/snakegl/
+	$(MAKE)	rebase	-C	$(CURDIR)/aquariumgl/
+	$(MAKE)	rebase	-C	$(CURDIR)/batallionnds/
+	$(MAKE)	rebase	-C	$(CURDIR)/snemulds/
 	
 checkoutenvironment:
 	git clone https://Coto88@bitbucket.org/Coto88/newlib-nds.git $(CURDIR)/newlib-nds
@@ -157,6 +181,27 @@ updateall:
 	-mv	$(CURDIR)/ToolchainGenericDS-UnitTest/ToolchainGenericDS-UnitTest.nds	$(CURDIR)/ToolchainGenericDS-UnitTest/release/arm7dldi-ntr/ToolchainGenericDS-UnitTest.nds
 	-mv	/E/ToolchainGenericDS-UnitTest.srl	$(CURDIR)/ToolchainGenericDS-UnitTest/release/arm7dldi-twl/ToolchainGenericDS-UnitTest.srl
 
+	-mv	$(CURDIR)/cgmodels/targetClientRenderers/NintendoDS/Env_Mapping/Env_Mapping.nds	$(CURDIR)/cgmodels/targetClientRenderers/NintendoDS/Env_Mapping/release/arm7dldi-ntr/Env_Mapping.nds
+	-mv	/E/Env_Mapping.srl	$(CURDIR)/cgmodels/targetClientRenderers/NintendoDS/Env_Mapping/release/arm7dldi-twl/Env_Mapping.srl
+
+	-mv	$(CURDIR)/cgmodels/targetClientRenderers/NintendoDS/TexturedBlenderModelNDSRender/TexturedBlenderModelNDSRender.nds	$(CURDIR)/cgmodels/targetClientRenderers/NintendoDS/TexturedBlenderModelNDSRender/release/arm7dldi-ntr/TexturedBlenderModelNDSRender.nds
+	-mv	/E/TexturedBlenderModelNDSRender.srl	$(CURDIR)/cgmodels/targetClientRenderers/NintendoDS/TexturedBlenderModelNDSRender/release/arm7dldi-twl/TexturedBlenderModelNDSRender.srl
+	
+	-mv	$(CURDIR)/tgdsproject3d/tgdsproject3d.nds	$(CURDIR)/tgdsproject3d/release/arm7dldi-ntr/tgdsproject3d.nds
+	-mv	/E/tgdsproject3d.srl	$(CURDIR)/tgdsproject3d/release/arm7dldi-twl/tgdsproject3d.srl
+	
+	-mv	$(CURDIR)/snakegl/snakegl.nds	$(CURDIR)/snakegl/release/arm7dldi-ntr/snakegl.nds
+	-mv	/E/snakegl.srl	$(CURDIR)/snakegl/release/arm7dldi-twl/snakegl.srl
+	
+	-mv	$(CURDIR)/aquariumgl/aquariumgl.nds	$(CURDIR)/aquariumgl/release/arm7dldi-ntr/aquariumgl.nds
+	-mv	/E/aquariumgl.srl	$(CURDIR)/aquariumgl/release/arm7dldi-twl/aquariumgl.srl
+	
+	-mv	$(CURDIR)/batallionnds/batallionnds.nds	$(CURDIR)/batallionnds/release/arm7dldi-ntr/batallionnds.nds
+	-mv	/E/batallionnds.srl	$(CURDIR)/batallionnds/release/arm7dldi-twl/batallionnds.srl
+	
+	-mv	$(CURDIR)/snemulds/snemulds.nds	$(CURDIR)/snemulds/release/arm7dldi-ntr/snemulds.nds
+	-mv	/E/snemulds.srl	$(CURDIR)/snemulds/release/arm7dldi-twl/snemulds.srl
+
 switchstable:
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS/
 	$(MAKE)	switchStable	-C	$(CURDIR)/armv4core/
@@ -171,6 +216,11 @@ switchstable:
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	switchStable	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
+	$(MAKE)	switchStable	-C	$(CURDIR)/cgmodels/
+	$(MAKE)	switchStable	-C	$(CURDIR)/tgdsproject3d/
+	$(MAKE)	switchStable	-C	$(CURDIR)/snakegl/
+	$(MAKE)	switchStable	-C	$(CURDIR)/aquariumgl/
+	$(MAKE)	switchStable	-C	$(CURDIR)/batallionnds/
 	$(MAKE)	switchStable	-C	$(CURDIR)/snemulds/
 
 switchmaster:
@@ -187,6 +237,11 @@ switchmaster:
 	$(MAKE)	switchMaster	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	switchMaster	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	switchMaster	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
+	$(MAKE)	switchMaster	-C	$(CURDIR)/cgmodels/
+	$(MAKE)	switchMaster	-C	$(CURDIR)/tgdsproject3d/
+	$(MAKE)	switchMaster	-C	$(CURDIR)/snakegl/
+	$(MAKE)	switchMaster	-C	$(CURDIR)/aquariumgl/
+	$(MAKE)	switchMaster	-C	$(CURDIR)/batallionnds/
 	$(MAKE)	switchMaster	-C	$(CURDIR)/snemulds/
 	
 commitenvironment:
@@ -206,6 +261,12 @@ commitall:
 	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	commitChanges	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
+	$(MAKE)	commitChanges	-C	$(CURDIR)/cgmodels/
+	$(MAKE)	commitChanges	-C	$(CURDIR)/tgdsproject3d/
+	$(MAKE)	commitChanges	-C	$(CURDIR)/snakegl/
+	$(MAKE)	commitChanges	-C	$(CURDIR)/aquariumgl/
+	$(MAKE)	commitChanges	-C	$(CURDIR)/batallionnds/
+	$(MAKE)	commitChanges	-C	$(CURDIR)/snemulds/
 
 buildpkgs:
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/armv4core/
@@ -220,7 +281,13 @@ buildpkgs:
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-argvtest/
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-OnlineApp/
 	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/ToolchainGenericDS-UnitTest/
-	
+	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/cgmodels/
+	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/tgdsproject3d/
+	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/snakegl/
+	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/aquariumgl/
+	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/batallionnds/
+	$(MAKE)	BuildTGDSPKG	-C	$(CURDIR)/snemulds/
+
 help:
 	-@echo "MAKE tgdsproject: Builds TGDS environment + a given TGDS project (requires newlib for NintendoDS to be built first)"
 	-@echo "MAKE dualtgdsproject: Builds TGDS environment + 1 TGDS project + 1 TGDS project (requires newlib for NintendoDS to be built first)"

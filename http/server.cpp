@@ -33,7 +33,10 @@ int mainHTTPServer(int argc, char **argv){
     struct sockaddr_in local, client_addr;
     int count = 0;
     int serverPort = atoi(argv[2]);
+
+	#ifndef _MSC_VER
     char IPStr[INET_ADDRSTRLEN];
+	#endif
 
     //printf("IP: %s - Port: %d\n", argv[3], serverPort);
 
@@ -53,14 +56,16 @@ int mainHTTPServer(int argc, char **argv){
     #endif
     
     // Fill in the address structure
-    local.sin_family        = AF_INET;
+    #ifndef _MSC_VER
+	local.sin_family        = AF_INET;
     //inet_pton(AF_INET, argv[3], &(local.sin_addr.s_addr)); //doesn't work because virtual LAN adapter is isolated
     local.sin_addr.s_addr   = INADDR_ANY; //so WSL2 virtual LAN adapter can reach Host OS
     local.sin_port          = htons(serverPort);
     // now get it back and print it
     inet_ntop(AF_INET, &(local.sin_addr), IPStr, INET_ADDRSTRLEN);
-
-    sock = socket(AF_INET, SOCK_STREAM, 0);
+	#endif
+    
+	sock = socket(AF_INET, SOCK_STREAM, 0);
 
     #ifdef WIN32
     if (sock == INVALID_SOCKET){
@@ -107,7 +112,11 @@ listen_goto:
 		bytes[1] = (thisIp >> 8) & 0xFF;
 		bytes[2] = (thisIp >> 16) & 0xFF;
 		bytes[3] = (thisIp >> 24) & 0xFF;
+		#ifndef _MSC_VER
 		printf("\n\nHTTP 1.0 Server. Port: %d - Mounted at: %d.%d.%d.%d (%s)\n", serverPort, bytes[0], bytes[1], bytes[2], bytes[3], IPStr);
+		#else
+		printf("\n\nHTTP 1.0 Server. Port: %d - Mounted at: %d.%d.%d.%d (%s)\n", serverPort, bytes[0], bytes[1], bytes[2], bytes[3]);
+		#endif
 	}
 	if(quitAfterSentSingleFileToClient == true){
 	printf("Quit inmediately after file transfer: ENABLED\n");

@@ -29,7 +29,7 @@ toolchaingenericds-utils [Command] arg0 arg1 arg2 argN
 		__Description__
 		TGDS-Videoconverter, emits *.TVS video+audio streams playable in ToolchainGenericDS-multimediaplayer (cmd only).
 		WIN32 has a script to automate TVS conversion, 
-			located at C:\<install path>\newlib-nds\installer\shared\6.2_2016q4\bin if you install newlib-nds (https://github.com/cotodevel/newlib-nds)
+			located at C:\<installpath>\newlib-nds\installer\shared\6.2_2016q4\bin if you install newlib-nds (https://github.com/cotodevel/newlib-nds)
 		
 		
 	[pkgbuilder] [TGDSProjectName] [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSProjectSourceDirectory]

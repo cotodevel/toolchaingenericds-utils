@@ -29,7 +29,7 @@ toolchaingenericds-utils [Command] arg0 arg1 arg2 argN
 		__Description__
 		TGDS-Videoconverter, emits *.TVS video+audio streams playable in ToolchainGenericDS-multimediaplayer (cmd only).
 		WIN32 has a script to automate TVS conversion, 
-			located at C:\bitbucket_clone\newlib-nds\installer\shared\6.2_2016q4\bin if you install newlib-nds (https://bitbucket.org/Coto88/newlib-nds/src)
+			located at C:\<install path>\newlib-nds\installer\shared\6.2_2016q4\bin if you install newlib-nds (https://github.com/cotodevel/newlib-nds)
 		
 		
 	[pkgbuilder] [TGDSProjectName] [/baseTargetDecompressorDirectory] [/TGDSLibrarySourceDirectory] [/TGDSProjectSourceDirectory]
@@ -80,7 +80,7 @@ TGDS filesystem support into ToolchainGenericDS:
 	misc/build
 		- TGDS projects management (Makefile)
 		- TGDSPKGBuilderDefaultTemplateNDSHomebrew/ TGDS project template implementing a deployable package to be consumed by ToolchainGenericDS-OnlineApp (download and runs packages from the internet)
-		- dsarm/ misc tools to disassemble / assemble / debug ARM binaries from/to librarian formats (.a library of ARM ELF objects, Requires Newlib for NintendoDS before use. Follow: https://bitbucket.org/Coto88/newlib-nds/ steps to set up requires environment.)		
+		- dsarm/ misc tools to disassemble / assemble / debug ARM binaries from/to librarian formats (.a library of ARM ELF objects, Requires Newlib for NintendoDS before use. Follow: https://github.com/cotodevel/newlib-nds steps to set up requires environment.)		
 		- resources/ specification of custom formats used by TGDS software
 	
 	misc/imaadpcm

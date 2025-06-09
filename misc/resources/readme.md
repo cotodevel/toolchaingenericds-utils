@@ -121,7 +121,7 @@ glTexCoord2f(1.0f, 0.0f);
 //Finally 3-Vertices (a Triangle in the 3D ModelViewProjection space)
 glVertex3f(-1.0f, -1.0f, -1.0f);
 
-Example: https://bitbucket.org/Coto88/snakegl/src
+Example: https://github.com/cotodevel/snakegl
 
 
 
@@ -158,7 +158,7 @@ glCallList(box);
 glColor3fv(topcol[yloop-1]);
 glCallList(top);
 
-Example: https://bitbucket.org/Coto88/toolchaingenericds-unittest/src/master/
+Example: https://github.com/cotodevel/toolchaingenericds-unittest
 
 ![ToolchainGenericDS](https://bytebucket.org/Coto88/ndsdisplaylistutils/raw/02aca38abbf1fec3cd145c7f43950920ff99f4cb/img/ndsdisplaylistutils_nds.png)
 

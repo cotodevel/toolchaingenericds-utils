@@ -44,7 +44,7 @@ warning, please check public and private networks and click accept.
 As soon as the client in the DS connects (by using the above callbacks), the server companion will detect 1 DS connected. Do the same steps for a 2nd DS...
 When two DSes are connected, they will connect each other! Press L to send a UDP nifi message to the other DS!
 
-Check the project https://bitbucket.org/Coto88/toolchaingenericds-multiplayer-example to know how to implement the callbacks:
+Check the project https://github.com/cotodevel/toolchaingenericds-unittest to know how to implement the callbacks:
 override userCode sender and userCode ReceiveHandler required, so your project has nifi through local or UDP internet!
 
 

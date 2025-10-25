@@ -49,6 +49,18 @@ int main( int argc, char *argv[] ){
 	}
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "bin2lzss", strlen("bin2lzss")) == 0)){
 		orderArgs(argc, argv);
+		argc--; //skip duplicate arg at the end of argv
+
+		/* //debug argv
+		printf("got args:\n");
+		for(int i = 0; i < (argc); i++ ){
+			char outBuf2[256];
+			sprintf(outBuf2, "%s\n", (const char*)argv[i]);
+			printf(outBuf2);
+		}
+		return -1;
+		*/
+
 		return convertbin2lzss(argc, argv);
 	}
 	else if( (argv[1] != NULL) && (strncmp(argv[1], "mp4totvs", strlen("mp4totvs")) == 0)){

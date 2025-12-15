@@ -18,10 +18,17 @@
 
 #coto: script that builds a collection of objects (*.o) into $(TARGET_LIBRARY_FILE)
 
-#TGDS1.4 compatible Makefile
+#TGDS1.6 compatible Makefile
 
 #Shared
-include $(DEFAULT_GCC_PATH)/Makefile.basenewlib
+ifeq ($(TGDS_ENV),windows)
+	include $(DEFAULT_GCC_PATH)/Makefile.basenewlib
+else
+	export TGDS_ENV := linux
+	export DEFAULT_GCC_PATH := /usr/arm-none-eabi/lib/newlib-nano-2.1-nds/6.2_2016q4/
+	include $(DEFAULT_GCC_PATH)Makefile.basenewlib
+endif
+
 export TARGET_LIBRARY_FILE_OUT	=	libgcc-out.a
 export TARGET_LIBRARY_FILE_IN	=	libgcc-in.a
 

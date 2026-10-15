@@ -64,10 +64,14 @@ typedef double GLdouble;
 typedef double GLclampd;
 typedef void GLvoid;
 
-#ifndef __cplusplus
+#if !defined(__cplusplus) && defined(_MSC_VER)
 typedef unsigned char bool;
 static bool false = 0;
 static bool true = 1;
+#endif
+
+#if !defined(__cplusplus) && defined(_MSC_VER)
+#include <string.h>
 #endif
 
 #define RGB15(r,g,b)  ((r)|((g)<<5)|((b)<<10))

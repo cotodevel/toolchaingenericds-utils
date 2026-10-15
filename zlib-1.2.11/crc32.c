@@ -1,4 +1,6 @@
 #include "zlib.h"
+#include "crc32.h"
+
 /* crc32.h -- tables for rapid CRC calculation
  * Generated automatically by crc32.c
  */

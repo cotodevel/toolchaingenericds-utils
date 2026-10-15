@@ -108,7 +108,7 @@ int gz_compress(FILE   *in,
     /* Try first compressing with mmap. If mmap fails (minigzip used in a
      * pipe), use the normal fread loop.
      */
-    if (gz_compress_mmap(in, out) == Z_OK) return;
+    if (gz_compress_mmap(in, out) == Z_OK) return Z_OK;
 #endif
     for (;;) {
         len = (int)fread(buf, 1, sizeof(buf), in);
@@ -120,7 +120,7 @@ int gz_compress(FILE   *in,
         if (len == 0) break;
 
         if (gzwrite(out, buf, (unsigned)len) != len) {
-			error(gzerror(out, &err));
+			//error(gzerror(out, &err));
 			return Z_DATA_ERROR;
 		}
     }
@@ -160,11 +160,11 @@ int gz_compress_mmap(in, out)
     /* Compress the whole file at once: */
     len = gzwrite(out, (char *)buf, (unsigned)buf_len);
 
-    if (len != (int)buf_len) error(gzerror(out, &err));
+    if (len != (int)buf_len) { /*error(gzerror(out, &err));*/ }
 
     munmap(buf, buf_len);
     fclose(in);
-    if (gzclose(out) != Z_OK) error("failed gzclose");
+    if (gzclose(out) != Z_OK) { /* error("failed gzclose"); */ }
     return Z_OK;
 }
 #endif /* USE_MMAP */
@@ -181,16 +181,16 @@ void gz_uncompress(gzFile in,
 
     for (;;) {
         len = gzread(in, buf, sizeof(buf));
-        if (len < 0) error (gzerror(in, &err));
+        if (len < 0) { /*error (gzerror(in, &err));*/ } 
         if (len == 0) break;
 
         if ((int)fwrite(buf, 1, (unsigned)len, out) != len) {
-            error("failed fwrite");
+            //error("failed fwrite");
         }
     }
-    if (fclose(out)) error("failed fclose");
+    if (fclose(out)) { /*error("failed fclose");*/ }
 
-    if (gzclose(in) != Z_OK) error("failed gzclose");
+    if (gzclose(in) != Z_OK) { /* error("failed gzclose"); */ }
 }
 
 
@@ -277,12 +277,6 @@ void file_uncompress(char  *file)
  *   -1 to -9 : compression level
  */
 
-#if !defined(_MSC_VER) && !defined(ARM9)
-int main(int argc, char *argv[]){
-	return mainminigzip(argc, argv);
-}
-#endif
-
 int mainminigzip(int argc,
     char *argv[])
 {
@@ -318,11 +312,11 @@ int mainminigzip(int argc,
         SET_BINARY_MODE(stdout);
         if (uncompr) {
             file = gzdopen(fileno(stdin), "r");
-            if (file == NULL) error("can't gzdopen stdin");
+            if (file == NULL) { /* error("can't gzdopen stdin"); */ }
             gz_uncompress(file, stdout);
         } else {
             file = gzdopen(fileno(stdout), outmode);
-            if (file == NULL) error("can't gzdopen stdout");
+            if (file == NULL) { /* error("can't gzdopen stdout"); */ }
             gz_compress(stdin, file);
         }
     } else {
@@ -335,5 +329,11 @@ int mainminigzip(int argc,
         } while (argv++, --argc);
     }
     return 0;
+}
+#endif
+
+#if !defined(_MSC_VER) && !defined(ARM9)
+int main(int argc, char *argv[]){
+	return mainminigzip(argc, argv);
 }
 #endif

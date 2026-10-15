@@ -248,12 +248,6 @@ static int isLargeFile(const char* filename)
  return largeFile;
 }
 
-#if !defined(_MSC_VER) && !defined(ARM9)
-int main(int argc, char *argv[]){
-	return mainZIPBuild(argc, argv);
-}
-#endif
-
 int mainZIPBuild(int argc, char *argv[])
 {
     int i;
@@ -527,3 +521,9 @@ int mainZIPBuild(int argc, char *argv[])
     free(buf);
     return 0;
 }
+
+#if !defined(_MSC_VER) && !defined(ARM9)
+int main(int argc, char *argv[]){
+	return mainZIPBuild(argc, argv);
+}
+#endif

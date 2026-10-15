@@ -541,23 +541,23 @@ int main(int argc, char *argv[])
         printf("out of memory\n");
         exit(1);
     }
-    test_compress(compr, comprLen, uncompr, uncomprLen);
+    test_compress(compr, uncompr, comprLen, uncomprLen);
 
     test_gzio((argc > 1 ? argv[1] : TESTFILE),
               uncompr, uncomprLen);
 
-    test_deflate(compr, comprLen);
-    test_inflate(compr, comprLen, uncompr, uncomprLen);
+    test_deflate((Byte *)compr, comprLen);
+    test_inflate((Byte *)compr, (Byte *)uncompr, comprLen, uncomprLen);
 
-    test_large_deflate(compr, comprLen, uncompr, uncomprLen);
-    test_large_inflate(compr, comprLen, uncompr, uncomprLen);
+    test_large_deflate((Byte *)compr, (Byte *)uncompr, comprLen, uncomprLen);
+    test_large_inflate((Byte *)compr, (Byte *)uncompr, comprLen, uncomprLen);
 
     test_flush(compr, &comprLen);
-    test_sync(compr, comprLen, uncompr, uncomprLen);
+    test_sync((Byte *)compr, comprLen, (Byte *)uncompr, uncomprLen);
     comprLen = uncomprLen;
 
-    test_dict_deflate(compr, comprLen);
-    test_dict_inflate(compr, comprLen, uncompr, uncomprLen);
+    test_dict_deflate((Byte *)compr, comprLen);
+    test_dict_inflate((Byte *)compr, comprLen, (Byte *)uncompr, uncomprLen);
 
     TGDSARM9Free(compr);
     TGDSARM9Free(uncompr);
